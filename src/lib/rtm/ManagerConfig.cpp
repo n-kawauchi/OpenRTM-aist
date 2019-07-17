@@ -38,7 +38,7 @@ namespace RTC
   const char* ManagerConfig::config_file_path[] = 
     {
       "./rtc.conf",
-      "${RTM_ROOT}bin/${RTM_VC_VERSION}/rtc.conf",
+      "${APPDATA}/OpenRTM-aist/rtc.conf",
       NULL
     };
 #else
