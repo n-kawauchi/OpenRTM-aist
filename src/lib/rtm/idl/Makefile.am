@@ -7,8 +7,6 @@
 
 AUTOMAKE_OPTIONS = 1.4
 
-SUBDIRS = . device_interfaces
-
 IDLC = @IDLC@
 IDLFLAGS = @IDL_FLAGS@
 LIBS = @LIBS@
@@ -261,4 +259,3 @@ EXTRA_DIST = \
 	$(IDL_SOURCES) \
 	libRTCSkel.vcproj.yaml
 
-DIST_SUBDIRS = device_interfaces

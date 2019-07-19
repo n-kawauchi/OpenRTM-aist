@@ -4,7 +4,6 @@
 ##
 ## $Id$
 ##---------------------------------------------------------------------------
-SUBDIRS = device_interfaces .
 
 clean-local:
 	rm -rf Debug Release
