@@ -30,6 +30,13 @@ Description: OpenRTM-aist headers for development
  The header files and libraries needed for developing RT-Components
  using OpenRTM-aist.
 
+Package: openrtm-aist-idl
+Architecture: any
+Multi-Arch: same
+Depends: openrtm-aist
+Description: OpenRTM-aist idls for development
+ The idl files needed for developing RT-Components using OpenRTM-aist.
+
 Package: openrtm-aist-example
 Architecture: any
 Multi-Arch: same
