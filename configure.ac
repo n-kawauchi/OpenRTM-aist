@@ -115,6 +115,7 @@ AC_ARG_WITH(rtorb,            [  --with-rtorb=dir                Find RtORB inst
 AC_ARG_WITH(generic-orb,      [  --with-generic-orb              Use other CORBA 2.3 ORB])
 AC_ARG_WITH(generic-orb-lib,  [  --with-generic-orb-lib	=libs    ORB libraries (-l...)])
 AC_ARG_WITH(doxygen,          [  --without-doxygen               Don't create documentation by doxygen])
+AC_ARG_WITH(omnissl,          [  --without-omnissl               Don't use OmniSSL library])
 
 dnl  Script wrapper selection
 #AC_ARG_WITH(python,           [  --with-python=dir               Find Python installation below dir])
@@ -1104,8 +1105,18 @@ if test "x$have_omniorb" = "xyes" ; then
 	CPPFLAGS="-I$omniORB4_CORBA_h_dir $CPPFLAGS"
 	CXXFLAGS="-I$omniORB4_CORBA_h_dir $CXXFLAGS"
 	LDFLAGS="-L$omniorb_lib_dir $LDFLAGS"
-	LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
-	LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+
+        dnl Library with / without SSL
+        if test "x$with_omnissl" = "xno" ; then
+                AM_DEFINE([ENABLE_OMNISSL], [TRUE], [omniSSL is used])
+                LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+                LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+        else
+                AM_DEFINE([ENABLE_OMNISSL], [FALSE], [omniSSL is NOT used])
+                LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4"
+                LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4"
+        fi
+
 	AC_DEFINE([ORB_IS_OMNIORB], [TRUE], [ORB is omniORB])
 fi
 
