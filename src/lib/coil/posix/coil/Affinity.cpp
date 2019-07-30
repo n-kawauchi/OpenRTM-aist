@@ -28,7 +28,7 @@ namespace coil
 {
   bool getProcCpuAffinity(CpuMask& cpu_mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     pid_t pid(getpid());
     cpu_set_t cpu_set;
     CPU_ZERO(&cpu_set);
@@ -49,7 +49,7 @@ namespace coil
 
   bool setProcCpuAffinity(std::vector<unsigned int> mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     pid_t pid(getpid());
     cpu_set_t cpu_set;
     CPU_ZERO(&cpu_set);
@@ -67,7 +67,7 @@ namespace coil
 
   bool setProcCpuAffinity(std::string cpu_mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     coil::vstring tmp = coil::split(cpu_mask, ",", true);
     CpuMask mask;
     for (size_t i(0); i < tmp.size(); ++i)
@@ -87,7 +87,7 @@ namespace coil
 
   bool getThreadCpuAffinity(CpuMask& cpu_mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     pthread_t tid(pthread_self());
     cpu_set_t cpu_set;
     CPU_ZERO(&cpu_set);
@@ -108,7 +108,7 @@ namespace coil
 
   bool setThreadCpuAffinity(std::vector<unsigned int> mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     pthread_t tid(pthread_self());
     cpu_set_t cpu_set;
     CPU_ZERO(&cpu_set);
@@ -126,7 +126,7 @@ namespace coil
 
   bool setThreadCpuAffinity(std::string cpu_mask)
   {
-#ifndef COIL_OS_QNX
+#if !(defined(COIL_OS_QNX) || defined(COIL_OS_DARWIN))
     coil::vstring tmp = coil::split(cpu_mask, ",", true);
     CpuMask mask;
     for (size_t i(0); i < tmp.size(); ++i)
