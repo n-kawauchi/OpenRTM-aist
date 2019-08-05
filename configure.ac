@@ -1512,6 +1512,46 @@ if test "x$enable_test" = "xyes" ; then
 fi
 
 
+dnl ------------------------------------------------------------
+dnl ext/Makefile settings....
+dnl
+dnl ------------------------------------------------------------
+EXT_TARGET="local_service ec sdo"
+dnl ------------------------------------------------------------
+dnl ext/observer
+dnl
+dnl ------------------------------------------------------------
+if test "x$enable_observer" = "xyes" ; then
+        AC_DEFINE([BUILD_EXTOBSERVER], [TRUE], [Build ext/observer])
+        EXT_TARGET="$EXT_TARGET observer"
+else
+        AC_DEFINE([BUILD_EXTOBSERVER], [FALSE], [Build ext/observer])
+fi
+
+dnl ------------------------------------------------------------
+dnl ext/fluentd
+dnl
+dnl ------------------------------------------------------------
+if test "x$enable_fluentd" = "xyes" ; then
+        AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/fluentd])
+        EXT_TARGET="$EXT_TARGET fluentd"
+else
+        AC_DEFINE([BUILD_EXTFLUENTD], [FALSE], [Build ext/fluentd])
+fi
+dnl ------------------------------------------------------------
+dnl ext/ssl 
+dnl
+dnl ------------------------------------------------------------
+if test "x$orb_to_use" = "xomniORB" ; then
+        if test "x$with_omnissl" = "xno" ; then
+                if test "x$enable_ssl" = "xyes" ; then
+                        AC_DEFINE([BUILD_EXTSSL], [TRUE], [Build ext/ssl])
+                        EXT_TARGET="$EXT_TARGET ssl"
+                else
+                        AC_DEFINE([BUILD_EXTSSL], [FALSE], [Build ext/ssl])
+                fi
+        fi
+fi
 
 dnl ------------------------------------------------------------
 dnl exported environmental variables

@@ -7,12 +7,9 @@
 
 AUTOMAKE_OPTIONS = 1.4
 
-if ENABLE_OMNISSL
-SUBDIRS = local_service ec sdo ssl
+#SUBDIRS = local_service ec sdo
+SUBDIRS = @EXT_TARGET@
 DIST_SUBDIRS = local_service ec sdo logger ssl
-else
-SUBDIRS = local_service ec sdo
-DIST_SUBDIRS = local_service ec sdo logger
-endif
+
 
 
