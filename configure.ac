@@ -1108,11 +1108,11 @@ if test "x$have_omniorb" = "xyes" ; then
 
         dnl Library with / without SSL
         if test "x$with_omnissl" = "xno" ; then
-                AM_DEFINE([ENABLE_OMNISSL], [TRUE], [omniSSL is used])
+                AC_DEFINE([ENABLE_OMNISSL], [TRUE], [omniSSL is used])
                 LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
                 LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
         else
-                AM_DEFINE([ENABLE_OMNISSL], [FALSE], [omniSSL is NOT used])
+                AC_DEFINE([ENABLE_OMNISSL], [FALSE], [omniSSL is NOT used])
                 LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4"
                 LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4"
         fi
