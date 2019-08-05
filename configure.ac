@@ -1516,16 +1516,16 @@ dnl ------------------------------------------------------------
 dnl ext/Makefile settings....
 dnl
 dnl ------------------------------------------------------------
-EXT_TARGET="local_service ec sdo"
+EXT_TARGET="local_service ec"
 dnl ------------------------------------------------------------
 dnl ext/observer
 dnl
 dnl ------------------------------------------------------------
 if test "x$enable_observer" = "xyes" ; then
-        AC_DEFINE([BUILD_EXTOBSERVER], [TRUE], [Build ext/observer])
-        EXT_TARGET="$EXT_TARGET observer"
+        AC_DEFINE([BUILD_EXTOBSERVER], [TRUE], [Build ext/sdo])
+        EXT_TARGET="$EXT_TARGET sdo"
 else
-        AC_DEFINE([BUILD_EXTOBSERVER], [FALSE], [Build ext/observer])
+        AC_DEFINE([BUILD_EXTOBSERVER], [FALSE], [Build ext/sdo])
 fi
 
 dnl ------------------------------------------------------------
@@ -1608,6 +1608,9 @@ AC_SUBST(UNITTEST)
 
 dnl RT preempt EC
 AC_SUBST(RTPREEMPTEC)
+
+dnl src/ext targets
+AC_SUBST(EXT_TARGET)
 
 dnl OpenRTM's includedir/libdir/datadir definition
 rtm_includedir=$includedir"/openrtm-"$major_version"."$minor_version
