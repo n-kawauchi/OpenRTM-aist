@@ -1533,8 +1533,10 @@ dnl ext/fluentd
 dnl
 dnl ------------------------------------------------------------
 if test "x$enable_fluentd" = "xyes" ; then
-        AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/fluentd])
-        EXT_TARGET="$EXT_TARGET fluentd"
+        if test "$os" = "linux" ; then
+                AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/fluentd])
+                EXT_TARGET="$EXT_TARGET fluentd"
+        fi
 else
         AC_DEFINE([BUILD_EXTFLUENTD], [FALSE], [Build ext/fluentd])
 fi
