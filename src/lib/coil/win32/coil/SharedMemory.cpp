@@ -34,7 +34,6 @@ namespace coil
   SharedMemory::SharedMemory()
     : m_memory_size(0),
       m_shm(NULL),
-      m_file_create(false),
       m_handle(NULL)
   {
   }
@@ -65,7 +64,6 @@ namespace coil
     m_shm_address = rhs.m_shm_address;
     m_shm = rhs.m_shm;
     m_handle = rhs.m_handle;
-    m_file_create = rhs.m_file_create;
   }
 
   /*!
@@ -114,11 +112,15 @@ namespace coil
 
     m_shm_address = shm_address;
     m_memory_size = memory_size;
+
+    LONG highsize = static_cast<LONG>(m_memory_size >> 32) & 0xFFFFFFFF;
+    LONG lowsize = static_cast<LONG>(m_memory_size & 0xFFFFFFFF);
+
     m_handle = CreateFileMapping(
 		(HANDLE)-1,
 		NULL,
 		PAGE_READWRITE | SEC_COMMIT,
-		0, m_memory_size, 
+		highsize, lowsize, 
 		shm_address.c_str());
     /*
     if(GetLastError() == ERROR_ALREADY_EXISTS)
@@ -131,7 +133,6 @@ namespace coil
     */
 
     m_shm = (char *)MapViewOfFile(m_handle, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-    m_file_create = true;
     return 0;
   }
 
@@ -190,6 +191,11 @@ namespace coil
   int SharedMemory::write(const char *data, const int pos, const int size)
   {
 	  if (!created())
+	  {
+		  return -1;
+	  }
+
+	  if (m_memory_size < size + pos)
 	  {
 		  return -1;
 	  }
@@ -261,7 +267,7 @@ namespace coil
 	{
 		return -1;
 	}
-    if(m_file_create)
+    if(m_handle != NULL)
     {
     	if (CloseHandle(m_handle) == 0)
     	{
@@ -269,6 +275,7 @@ namespace coil
     	}
 	else
 	{
+		m_handle = NULL;
 		return 0;
 	}
     }
