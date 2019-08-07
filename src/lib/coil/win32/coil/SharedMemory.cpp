@@ -113,8 +113,8 @@ namespace coil
     m_shm_address = shm_address;
     m_memory_size = memory_size;
 
-    LONG highsize = static_cast<LONG>(m_memory_size >> 32) & 0xFFFFFFFF;
-    LONG lowsize = static_cast<LONG>(m_memory_size & 0xFFFFFFFF);
+    DWORD highsize = static_cast<DWORD>((m_memory_size >> 32) & 0xFFFFFFFF);
+    DWORD lowsize = static_cast<DWORD>(m_memory_size & 0xFFFFFFFF);
 
     m_handle = CreateFileMapping(
 		(HANDLE)-1,
