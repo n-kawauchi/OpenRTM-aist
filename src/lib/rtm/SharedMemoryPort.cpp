@@ -215,7 +215,7 @@ namespace RTC
 	void SharedMemoryPort::close_memory(::CORBA::Boolean unlink)
     throw (CORBA::SystemException)
   {
-	  if (!m_shmem.created())
+	  if (m_shmem.created())
 	  {
 		  m_shmem.close();
 		  if (unlink)
@@ -253,7 +253,7 @@ namespace RTC
 	  CORBA::ULongLong data_size = (CORBA::ULongLong)data.bufSize();
 	  if (data_size + sizeof(CORBA::ULongLong) > m_shmem.get_size())
 	  {
-		  int memory_size = (int)data_size + (int)sizeof(CORBA::ULongLong);
+		  CORBA::ULongLong memory_size = data_size + (CORBA::ULongLong)sizeof(CORBA::ULongLong);
 		  if (!CORBA::is_nil(m_smInterface))
 		  {
 			  try
