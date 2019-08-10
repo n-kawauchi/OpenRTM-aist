@@ -115,6 +115,7 @@ AC_ARG_WITH(rtorb,            [  --with-rtorb=dir                Find RtORB inst
 AC_ARG_WITH(generic-orb,      [  --with-generic-orb              Use other CORBA 2.3 ORB])
 AC_ARG_WITH(generic-orb-lib,  [  --with-generic-orb-lib	=libs    ORB libraries (-l...)])
 AC_ARG_WITH(doxygen,          [  --without-doxygen               Don't create documentation by doxygen])
+AC_ARG_WITH(omnissl,          [  --without-omnissl               Don't use OmniSSL library])
 
 dnl  Script wrapper selection
 #AC_ARG_WITH(python,           [  --with-python=dir               Find Python installation below dir])
@@ -1104,8 +1105,18 @@ if test "x$have_omniorb" = "xyes" ; then
 	CPPFLAGS="-I$omniORB4_CORBA_h_dir $CPPFLAGS"
 	CXXFLAGS="-I$omniORB4_CORBA_h_dir $CXXFLAGS"
 	LDFLAGS="-L$omniorb_lib_dir $LDFLAGS"
-	LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
-	LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+
+        dnl Library with / without SSL
+        if test "x$with_omnissl" = "xno" ; then
+                AC_DEFINE([ENABLE_OMNISSL], [TRUE], [omniSSL is used])
+                LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+                LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
+        else
+                AC_DEFINE([ENABLE_OMNISSL], [FALSE], [omniSSL is NOT used])
+                LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4"
+                LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4"
+        fi
+
 	AC_DEFINE([ORB_IS_OMNIORB], [TRUE], [ORB is omniORB])
 fi
 
@@ -1501,6 +1512,48 @@ if test "x$enable_test" = "xyes" ; then
 fi
 
 
+dnl ------------------------------------------------------------
+dnl ext/Makefile settings....
+dnl
+dnl ------------------------------------------------------------
+EXT_TARGET="local_service ec"
+dnl ------------------------------------------------------------
+dnl ext/observer
+dnl
+dnl ------------------------------------------------------------
+if test "x$enable_observer" = "xyes" ; then
+        AC_DEFINE([BUILD_EXTOBSERVER], [TRUE], [Build ext/sdo])
+        EXT_TARGET="$EXT_TARGET sdo"
+else
+        AC_DEFINE([BUILD_EXTOBSERVER], [FALSE], [Build ext/sdo])
+fi
+
+dnl ------------------------------------------------------------
+dnl ext/fluentd
+dnl
+dnl ------------------------------------------------------------
+if test "x$enable_fluentd" = "xyes" ; then
+        if test "$os" = "linux" ; then
+                AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/fluentd])
+                EXT_TARGET="$EXT_TARGET fluentd"
+        fi
+else
+        AC_DEFINE([BUILD_EXTFLUENTD], [FALSE], [Build ext/fluentd])
+fi
+dnl ------------------------------------------------------------
+dnl ext/ssl 
+dnl
+dnl ------------------------------------------------------------
+if test "x$orb_to_use" = "xomniORB" ; then
+        if test "x$with_omnissl" = "xno" ; then
+                if test "x$enable_ssl" = "xyes" ; then
+                        AC_DEFINE([BUILD_EXTSSL], [TRUE], [Build ext/ssl])
+                        EXT_TARGET="$EXT_TARGET ssl"
+                else
+                        AC_DEFINE([BUILD_EXTSSL], [FALSE], [Build ext/ssl])
+                fi
+        fi
+fi
 
 dnl ------------------------------------------------------------
 dnl exported environmental variables
@@ -1557,6 +1610,9 @@ AC_SUBST(UNITTEST)
 
 dnl RT preempt EC
 AC_SUBST(RTPREEMPTEC)
+
+dnl src/ext targets
+AC_SUBST(EXT_TARGET)
 
 dnl OpenRTM's includedir/libdir/datadir definition
 rtm_includedir=$includedir"/openrtm-"$major_version"."$minor_version
