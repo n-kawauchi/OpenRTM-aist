@@ -1534,11 +1534,11 @@ dnl
 dnl ------------------------------------------------------------
 if test "x$enable_fluentd" = "xyes" ; then
         if test "$os" = "linux" ; then
-                AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/fluentd])
-                EXT_TARGET="$EXT_TARGET fluentd"
+                AC_DEFINE([BUILD_EXTFLUENTD], [TRUE], [Build ext/logger/fluentbit_stream])
+                EXT_TARGET="$EXT_TARGET logger"
         fi
 else
-        AC_DEFINE([BUILD_EXTFLUENTD], [FALSE], [Build ext/fluentd])
+        AC_DEFINE([BUILD_EXTFLUENTD], [FALSE], [Build ext/logger/fluentbit_stream])
 fi
 dnl ------------------------------------------------------------
 dnl ext/ssl 
