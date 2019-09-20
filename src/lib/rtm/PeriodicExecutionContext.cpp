@@ -124,31 +124,37 @@ namespace RTC_exp
     RTC_TRACE(("svc()"));
     int count(0);
 
-    bool result = coil::setThreadCpuAffinity(m_cpu);
-
-    if (!result)
+    if (!m_cpu.empty())
       {
-        RTC_ERROR(("setThreadCpuAffinity():"
-                   "CPU affinity mask setting failed"));
-      };
-	
-	coil::CpuMask ret_cpu;
-	result = coil::getThreadCpuAffinity(ret_cpu);
-	
+        bool result = coil::setThreadCpuAffinity(m_cpu);
+        if (!result)
+          {
+            RTC_ERROR(("setThreadCpuAffinity():"
+                       "CPU affinity mask setting failed"));
+          };
+        
+        coil::CpuMask ret_cpu;
+        result = coil::getThreadCpuAffinity(ret_cpu);
+        
 
 #ifdef RTM_OS_LINUX
-	std::sort(ret_cpu.begin(), ret_cpu.end());
-	std::sort(m_cpu.begin(), m_cpu.end());
-	if (result && ret_cpu.size() > 0 && m_cpu.size() > 0 && ret_cpu.size() == m_cpu.size()
+        std::sort(ret_cpu.begin(), ret_cpu.end());
+        std::sort(m_cpu.begin(), m_cpu.end());
+        if (result && ret_cpu.size() > 0 && m_cpu.size() > 0 && ret_cpu.size() == m_cpu.size()
         && std::equal(ret_cpu.begin(), ret_cpu.end(), m_cpu.begin()))
-	{
+          {
 
-	}
-	else
-	{
-		RTC_ERROR(("pthread_getaffinity_np(): returned error."));
-	}
+          }
+        else
+          {
+            RTC_ERROR(("pthread_getaffinity_np(): returned error."));
+          }
 #endif
+    }
+    else
+    {
+        RTC_DEBUG(("cpu affinity is not set"));
+    }
 
     do
       {
