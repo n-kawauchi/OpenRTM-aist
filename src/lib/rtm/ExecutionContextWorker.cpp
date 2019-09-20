@@ -479,10 +479,18 @@ namespace RTC_impl
     RTC_PARANOID(("invokeWorker()"));
     // m_comps never changes its size here
     size_t len(m_comps.size());
-    Guard stateguard(m_statemutex);
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerPreDo();  }
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerDo();     }
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerPostDo(); }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerPreDo();
+      }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerDo();
+      }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerPostDo();
+      }
     Guard guard(m_mutex);
     updateComponentList();
   }
@@ -492,8 +500,10 @@ namespace RTC_impl
     RTC_PARANOID(("invokeWorkerPreDo()"));
     // m_comps never changes its size here
     size_t len(m_comps.size());
-    Guard stateguard(m_statemutex);
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerPreDo();  }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerPreDo();
+      }
   }
 
   void ExecutionContextWorker::invokeWorkerDo()
@@ -501,8 +511,10 @@ namespace RTC_impl
     RTC_PARANOID(("invokeWorkerDo()"));
     // m_comps never changes its size here
     size_t len(m_comps.size());
-    Guard stateguard(m_statemutex);
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerDo();     }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerDo();
+     }
   }
 
   void ExecutionContextWorker::invokeWorkerPostDo()
@@ -510,8 +522,10 @@ namespace RTC_impl
     RTC_PARANOID(("invokeWorkerPostDo()"));
     // m_comps never changes its size here
     size_t len(m_comps.size());
-    Guard stateguard(m_statemutex);
-    for (size_t i(0); i < len; ++i) { m_comps[i]->workerPostDo(); }
+    for (size_t i(0); i < len; ++i) {
+        Guard stateguard(m_statemutex);
+        m_comps[i]->workerPostDo();
+    }
     // m_comps might be changed here
     Guard guard(m_mutex);
     updateComponentList();
