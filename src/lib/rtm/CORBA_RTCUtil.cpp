@@ -113,7 +113,7 @@ namespace CORBA_RTCUtil
           { return RTC::ExecutionContext::_nil(); }
         if (CORBA::is_nil(eclist[ec_id]))
           { return RTC::ExecutionContext::_nil(); }
-        return eclist[ec_id];
+        return RTC::ExecutionContext::_duplicate(eclist[ec_id]);
       }
     if (ec_id >= 1000)
       {
@@ -124,7 +124,7 @@ namespace CORBA_RTCUtil
           { return RTC::ExecutionContext::_nil(); }
         if (CORBA::is_nil(eclist[pec_id]))
           { return RTC::ExecutionContext::_nil(); }
-        return eclist[pec_id];
+        return RTC::ExecutionContext::_duplicate(eclist[pec_id]);
       }
     return RTC::ExecutionContext::_nil();
   }
@@ -1186,7 +1186,7 @@ namespace CORBA_RTCUtil
       {
         RTC::PortProfile_var pp = ports[p]->get_port_profile();
         std::string s(CORBA::string_dup(pp->name));
-        if (name == s) { return ports[p]; }
+        if (name == s) { return RTC::PortService::_duplicate(ports[p]); }
       }
     return RTC::PortService::_nil();
   }
