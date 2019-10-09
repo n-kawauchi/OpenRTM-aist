@@ -42,7 +42,7 @@ namespace RTC
 
     // set InPort's reference
 #ifdef ORB_IS_OMNIORB
-    ::RTC::Manager::instance().theShortCutPOA()->activate_object(this);
+    PortableServer::ObjectId_var oid = ::RTC::Manager::instance().theShortCutPOA()->activate_object(this);
 #endif
     m_objref = this->_this();
     CORBA::ORB_var orb = ::RTC::Manager::instance().getORB();
