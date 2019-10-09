@@ -2614,7 +2614,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 		  
 		  std::string port0_name = port0_str;
 		  RTObject_impl* comp0 = NULL;
-		  RTC::RTObject_ptr comp0_ref = NULL;
+		  RTC::RTObject_var comp0_ref;
 
 		  if (comp0_name.find("://") == std::string::npos)
 		  {
@@ -2624,7 +2624,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 				  RTC_ERROR(("%s not found.", comp0_name.c_str()));
 				  continue;
 			  }
-			  comp0_ref = comp0->getObjRef();
+			  comp0_ref = RTObject::_duplicate(comp0->getObjRef());
 		  }
 		  else
 		  {
@@ -2634,7 +2634,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 				  RTC_ERROR(("%s not found.", comp0_name.c_str()));
 				  continue;
 			  }
-			  comp0_ref = rtcs[0];
+			  comp0_ref = RTObject::_duplicate(rtcs[0]);
 			  coil::vstring tmp_port0_name = coil::split(port0_str, "/");
 			  port0_name = tmp_port0_name.back();
 
@@ -2678,7 +2678,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 			  std::string comp_name = coil::flatten(tmp, ".");
 			  std::string port_name = port_str;
 			  RTObject_impl* comp = NULL;
-			  RTC::RTObject_ptr comp_ref = NULL;
+			  RTC::RTObject_var comp_ref;
 
 
 			  if (comp_name.find("://") == std::string::npos)
@@ -2689,7 +2689,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 					  RTC_ERROR(("%s not found.", comp_name.c_str()));
 					  continue;
 				  }
-				  comp_ref = comp->getObjRef();
+				  comp_ref = RTObject::_duplicate(comp->getObjRef());
 			  }
 			  else
 			  {
@@ -2699,7 +2699,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 					  RTC_ERROR(("%s not found.", comp_name.c_str()));
 					  continue;
 				  }
-				  comp_ref = rtcs[0];
+				  comp_ref = RTObject::_duplicate(rtcs[0]);
 				  coil::vstring tmp_port_name = coil::split(port_str, "/");
 				  port_name = tmp_port_name.back();
 
@@ -2761,7 +2761,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 		  coil::eraseBothEndsBlank(comps[i]);
 		  if (!comps[i].empty())
 		  {
-			  RTC::RTObject_ptr comp_ref;
+			  RTC::RTObject_var comp_ref;
 			  if (comps[i].find("://") == std::string::npos)
 			  {
 				  RTObject_impl* comp = getComponent(comps[i].c_str());
@@ -2769,7 +2769,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 				  {
 					  RTC_ERROR(("%s not found.", comps[i].c_str())); continue;
 				  }
-				  comp_ref = comp->getObjRef();
+				  comp_ref = RTObject::_duplicate(comp->getObjRef());
 			  }
 			  else
 			  {
@@ -2779,7 +2779,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 					  RTC_ERROR(("%s not found.", comps[i].c_str()));
 					  continue;
 				  }
-				  comp_ref = rtcs[0];
+				  comp_ref = RTObject::_duplicate(rtcs[0]);
 				  
 			  }
 			  
