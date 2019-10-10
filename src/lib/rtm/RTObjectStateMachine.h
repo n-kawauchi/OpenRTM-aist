@@ -92,11 +92,16 @@ namespace RTC_impl
     void workerDo(void);
     void workerPostDo(void);
 
+    bool activate();
+    bool deactivate();
+    bool reset();
+
   protected:
     void setComponentAction(const RTC::LightweightRTObject_ptr comp);
     void setDataFlowComponentAction(const RTC::LightweightRTObject_ptr comp);
     void setFsmParticipantAction(const RTC::LightweightRTObject_ptr comp);
     void setMultiModeComponentAction(const RTC::LightweightRTObject_ptr comp);
+    void updateState();
 
   private: // member variables
     RTC::Logger rtclog;
@@ -122,6 +127,10 @@ namespace RTC_impl
     // Component action invoker
     coil::TimeMeasure m_svtMeasure;
     coil::TimeMeasure m_refMeasure;
+
+    bool m_activation;
+    bool m_deactivation;
+    bool m_reset;
   };
 }; // namespace RTC
 
