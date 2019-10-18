@@ -36,9 +36,11 @@ check_env()
 {
 
     if test "x$ARCH" = "xx86" ;then
-        WIN_ARCH="win32"
+        WIN_ARCH_OMNI="Win32"
+        WIN_ARCH_SSL="win32"
     elif test "x$ARCH" = "xx86_64" ;then
-        WIN_ARCH="win64"
+        WIN_ARCH_OMNI="x64"
+        WIN_ARCH_SSL="win64"
     else
         echo "ARCH not defined"
         exit -1
@@ -67,11 +69,11 @@ check_env()
     fi
     base_url="https://openrtm.org/pub/omniORB/win32/omniORB-${OMNI_VERSION}/"
 
-    OMNIORB_ZIP=omniORB-${OMNI_VERSION}-${WIN_ARCH}-vc${VC_VERSION}-py${PY_VERSION}.zip
+    OMNIORB_ZIP=omniORB-${OMNI_VERSION}-${WIN_ARCH_OMNI}-vc${VC_VERSION}0-py${PY_VERSION}.zip
     OMNIORB_URL=${base_url}/${OMNIORB_ZIP}
 
     base_ssl_url="https://openrtm.org/pub/OpenSSL/${SSL_VERSION}"
-    OPENSSL_ZIP=openssl-${SSL_VERSION}e-${WIN_ARCH}-vc${VC_VERSION}.zip
+    OPENSSL_ZIP=openssl-${SSL_VERSION}e-${WIN_ARCH_SSL}-vc${VC_VERSION}.zip
     OPENSSL_URL=${base_ssl_url}/${OPENSSL_ZIP}
 }
 
