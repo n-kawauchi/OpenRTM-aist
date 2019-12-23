@@ -115,7 +115,6 @@ AC_ARG_WITH(rtorb,            [  --with-rtorb=dir                Find RtORB inst
 AC_ARG_WITH(generic-orb,      [  --with-generic-orb              Use other CORBA 2.3 ORB])
 AC_ARG_WITH(generic-orb-lib,  [  --with-generic-orb-lib	=libs    ORB libraries (-l...)])
 AC_ARG_WITH(doxygen,          [  --without-doxygen               Don't create documentation by doxygen])
-AC_ARG_WITH(omnissl,          [  --without-omnissl               Don't use OmniSSL library])
 
 dnl  Script wrapper selection
 #AC_ARG_WITH(python,           [  --with-python=dir               Find Python installation below dir])
@@ -1107,7 +1106,7 @@ if test "x$have_omniorb" = "xyes" ; then
 	LDFLAGS="-L$omniorb_lib_dir $LDFLAGS"
 
         dnl Library with / without SSL
-        if test "x$with_omnissl" = "xno" ; then
+        if test "x$enable_ssl" = "xyes" ; then
                 AC_DEFINE([ENABLE_OMNISSL], [TRUE], [omniSSL is used])
                 LIBS="$LIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
                 LDSOLIBS="$LDSOLIBS -lomniORB4 -lomnithread -lomniDynamic4 -lomnisslTP4"
@@ -1545,13 +1544,11 @@ dnl ext/ssl
 dnl
 dnl ------------------------------------------------------------
 if test "x$orb_to_use" = "xomniORB" ; then
-        if test "x$with_omnissl" = "xno" ; then
-                if test "x$enable_ssl" = "xyes" ; then
-                        AC_DEFINE([BUILD_EXTSSL], [TRUE], [Build ext/ssl])
-                        EXT_TARGET="$EXT_TARGET ssl"
-                else
-                        AC_DEFINE([BUILD_EXTSSL], [FALSE], [Build ext/ssl])
-                fi
+        if test "x$enable_ssl" = "xyes" ; then
+                AC_DEFINE([BUILD_EXTSSL], [TRUE], [Build ext/ssl])
+                EXT_TARGET="$EXT_TARGET ssl"
+        else
+                AC_DEFINE([BUILD_EXTSSL], [FALSE], [Build ext/ssl])
         fi
 fi
 
