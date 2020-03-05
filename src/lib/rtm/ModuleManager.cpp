@@ -54,7 +54,7 @@ namespace RTC
     m_downloadAllowed = coil::toBool(prop[ALLOW_URL], "yes", "no", false);
     m_initFuncSuffix  = prop[INITFUNC_SFX];
     m_initFuncPrefix  = prop[INITFUNC_PFX];
-    coil::vstring langs(coil::split(gprop["manager.supported_languages"], ","));
+    coil::vstring langs(coil::split(prop["manager.supported_languages"], ","));
 
     for (size_t l(0); l < langs.size(); ++l)
     {
