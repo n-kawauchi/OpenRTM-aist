@@ -54,6 +54,12 @@ namespace RTC
     m_downloadAllowed = coil::toBool(prop[ALLOW_URL], "yes", "no", false);
     m_initFuncSuffix  = prop[INITFUNC_SFX];
     m_initFuncPrefix  = prop[INITFUNC_PFX];
+    coil::vstring langs(coil::split(prop["manager.supported_languages"], ","));
+
+    for (size_t l(0); l < langs.size(); ++l)
+    {
+        m_loadfailmods[langs[l]] = coil::vstring();
+    }
   }
   
   /*!
@@ -504,7 +510,7 @@ namespace RTC
             //addNewFile(fpath, modules);
             coil::replaceString(flist[j], "\\", "/");
             coil::replaceString(flist[j], "//", "/");
-            addNewFile(flist[j], modules);
+            addNewFile(flist[j], modules, lang);
           }
       }
       std::sort(modules.begin(), modules.end());
@@ -519,7 +525,7 @@ namespace RTC
    * @endif
    */
   void ModuleManager::addNewFile(const std::string& fpath,
-                                 coil::vstring& modules)
+                                 coil::vstring& modules, const std::string& lang)
   {
     bool exists(false);
     for (size_t k(0); k < m_modprofs.size(); ++k)
@@ -534,9 +540,9 @@ namespace RTC
             break;
           }
       }
-	for (size_t k(0); k < m_loadfailmods.size(); ++k)
+	for (size_t k(0); k < m_loadfailmods[lang].size(); ++k)
 	{
-		if (m_loadfailmods[k] == fpath)
+		if (m_loadfailmods[lang][k] == fpath)
 		{
 			exists = true;
 			break;
@@ -596,7 +602,7 @@ namespace RTC
 
         RTC_DEBUG(("rtcprof cmd sub process done."));
         if (p["implementation_id"].empty()) { 
-			m_loadfailmods.push_back(modules[i]);
+			m_loadfailmods[lang].push_back(modules[i]);
 			continue;
 		}
         p["module_file_name"] = coil::basename(modules[i].c_str());
