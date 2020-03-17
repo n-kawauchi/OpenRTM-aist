@@ -91,7 +91,11 @@ static const char* default_config[] =
     "manager.command",                       "rtcd",
     "manager.nameservers",                     "default",
     "manager.language",                      "C++",
+#ifdef WIN32
     "manager.supported_languages",           "C++, Python, Java",
+#else
+    "manager.supported_languages",           "C++, Python, Python3, Java",
+#endif
     "manager.modules.C++.manager_cmd",       "rtcd",
     "manager.modules.C++.profile_cmd",       "rtcprof",
 #ifdef WIN32                                 
@@ -108,6 +112,12 @@ static const char* default_config[] =
     "manager.modules.Python.profile_cmd",    "rtcprof_python",
     "manager.modules.Python.suffixes",       "py",
     "manager.modules.Python.load_paths",     "",
+#ifndef WIN32
+    "manager.modules.Python3.manager_cmd",    "rtcd_python3",
+    "manager.modules.Python3.profile_cmd",    "rtcprof_python3",
+    "manager.modules.Python3.suffixes",       "py",
+    "manager.modules.Python3.load_paths",     "",
+#endif
     "manager.modules.Java.manager_cmd",      "rtcd_java",
     "manager.modules.Java.profile_cmd",      "rtcprof_java",
     "manager.modules.Java.suffixes",         "class",
