@@ -110,10 +110,26 @@ namespace coil
 #endif // UNICODE
 
       PROCESS_INFORMATION pi = { 0 };
-      if (!CreateProcess(NULL, lpcommand, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+      BOOL retcp = CreateProcess(NULL, lpcommand, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+      delete[] lpcommand;
+      if (!retcp)
       {
-          delete lpcommand;
-          return -1;
+          std::string commandbatch = std::string("cmd.exe /c ") + command;
+#ifdef UNICODE
+          std::wstring wcommandbatch = string2wstring(commandbatch);
+          LPTSTR lpcommandbatch = new TCHAR[wcommandbatch.size() + 1];
+          _tcscpy(lpcommandbatch, wcommandbatch.c_str());
+#else
+          // std::string -> LPTSTR
+          LPTSTR lpcommandbatch = new TCHAR[commandbatch.size() + 1];
+          _tcscpy(lpcommandbatch, commandbatch.c_str());
+#endif // UNICODE
+          BOOL retcpbatch = CreateProcess(NULL, lpcommandbatch, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+          delete[] lpcommandbatch;
+          if (!retcpbatch)
+          {
+              return -1;
+          }
       }
 
 
@@ -139,7 +155,6 @@ namespace coil
           coil::eraseBothEndsBlank(tmp);
       }
 
-      delete lpcommand;
       return 0;
 
   }
