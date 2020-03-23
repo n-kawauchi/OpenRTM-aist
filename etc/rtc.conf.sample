@@ -2,9 +2,7 @@
 #
 # RT-Component manager configuration
 #
-# Copyright (c) 2003-2008 Noriaki Ando <n-ando@aist.go.jp>
-#      Task-intelligence Research Group,
-#      Intelligent Systems Research Institute,
+# Copyright (c) 2003-2019 Noriaki Ando <n-ando@aist.go.jp>
 #      National Institute of
 #          Advanced Industrial Science and Technology (AIST), Japan
 #      All rights reserved.
@@ -16,12 +14,12 @@
 #------------------------------------------------------------
 # Configuration version (optional) 
 #
-config.version: 1.0
+config.version: 1.2
 
 #------------------------------------------------------------
 # OpenRTM-aist version (optional)
 #
-openrtm.version: 1.0.0
+openrtm.version: 1.2.0
 
 #------------------------------------------------------------
 # The name of manager (default = manager)
