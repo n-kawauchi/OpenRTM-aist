@@ -1,3 +1,9 @@
+openrtm-aist (1.2.2-0) experimental; urgency=low
+
+  * 1.2.2-0 (1.2.2-RELEASE). OpenRTM-aist-1.2.2-RELEASE
+
+ -- Noriaki Ando <n-ando@aist.go.jp>  Mon, 23 Mar 2020 14:56:35 +0900
+
 openrtm-aist (1.2.1-0) experimental; urgency=low
 
   * 1.2.1-0 (1.2.1-RELEASE). OpenRTM-aist-1.2.1-RELEASE
