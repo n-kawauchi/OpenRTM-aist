@@ -191,7 +191,10 @@ if __name__ == '__main__':
         print("please specify vsprops file")
         sys.exit(1)
 
-    f = file(sys.argv[1], "r")
+    if sys.version_info[0] == 2:
+        f = file(sys.argv[1], "r")
+    else:
+        f = open(sys.argv[1], "r")
     text = f.read().replace("shift_jis", "utf-8")
     f.close()
 
@@ -285,6 +288,9 @@ if __name__ == '__main__':
     dict["openrtm_idlflags"] =  "-bcxx;-Wba;-nf;-Wbshortcut;-I${OPENRTM_DIR}/rtm/idl"
 
     t = yat.Template(template)
-    f = file("OpenRTMConfig.cmake", "w")
+    if sys.version_info[0] == 2:
+        f = file("OpenRTMConfig.cmake", "w")
+    else:
+        f = open("OpenRTMConfig.cmake", "w")
     f.write(t.generate(dict))
     f.close()
