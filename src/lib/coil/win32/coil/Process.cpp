@@ -138,6 +138,13 @@ namespace coil
       CloseHandle(pi.hThread);
 
 
+      DWORD size = GetFileSize(rPipe, nullptr);
+      if (size == 0)
+      {
+          return 0;
+      }
+
+
       char Buf[1025] = { 0 };
       DWORD len;
       ReadFile(rPipe, Buf, sizeof(Buf) - 1, &len, NULL);
