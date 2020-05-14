@@ -804,7 +804,7 @@ Configurations:
 
 
 def usage():
-    print("""Usage:
+    msg = """Usage:
   vcprojtool.py cmd options
 commands:
   vcproj: Generate vcproj
@@ -819,7 +819,8 @@ examples:
                      --resource *.txt
   vcprojtool.py yaml --type [exe|dll|nmake|lib] --output
   vcprojtool.py flist --out --source|--header|--resource *
-""")
+"""
+    print(msg)
 
 import sys
 
