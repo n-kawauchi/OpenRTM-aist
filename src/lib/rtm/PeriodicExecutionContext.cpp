@@ -183,7 +183,7 @@ namespace RTC_exp
             RTC_PARANOID(("Sleep:     %f [s]", (double)(period - exectime)));
           }
         coil::TimeValue t2(coil::gettimeofday());
-        if (!m_nowait && 0.0 < (double)exectime && (double)(period - exectime) > 0.0)
+        if (!m_nowait && 0.0 <= (double)exectime && (double)(period - exectime) > 0.0)
           {
             if (count > 1000) { RTC_PARANOID(("sleeping...")); }
             coil::sleep((coil::TimeValue)(period - exectime));
