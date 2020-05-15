@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # @brief Visual Studio Project GUID pickup script
 # @date $Date: 2007-07-20 15:37:16 $

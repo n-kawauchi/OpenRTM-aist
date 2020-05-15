@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # @brief CORBA stub and skelton wrapper generator
 # @date $Date: 2008-02-29 04:50:39 $

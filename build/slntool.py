@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # @brief Visual Studio solution generator
 # @date $Date: 2008-03-06 06:46:37 $
@@ -11,7 +11,7 @@
 #         Advanced Industrial Science and Technology (AIST), Japan
 #     All rights reserved.
 #
-# $Id$
+# $Id: slntool.py 2217 2011-08-22 07:58:52Z fsi-katami $
 #
 
 import sys
@@ -78,7 +78,7 @@ Configurations:
 
 
 def usage():
-    print("""
+    msg = """
 Usage:
   slntool.py --dep dep_file [--outfile outfile] vcproj_files...
 
@@ -107,7 +107,8 @@ App: Lib1 Lib2
 Lib2: Lib1
 -------------
 
-""")
+"""
+    print(msg)
 
 
 def get_projinfo(fname,vcversion="VC8"):
@@ -180,8 +181,6 @@ def parse_args(argv):
         i += 1
     return (vcversion, depfile, outfile, flist)
 
-
-
 def get_slnyaml(depfile, projfiles, vcversion="VC8"):
     depdict = get_dependencies(depfile)
     projs = []
@@ -189,7 +188,7 @@ def get_slnyaml(depfile, projfiles, vcversion="VC8"):
 """
     for f in projfiles:
         pj = get_projinfo(f, vcversion)
-        if pj["Name"] in depdict:
+        if "Name" in depdict:
             pj["Depend"] = depdict[pj["Name"]]
         projs.append(pj)
     def depsort(d0, d1):
@@ -213,8 +212,8 @@ def get_slnyaml(depfile, projfiles, vcversion="VC8"):
             return 1 
 
         # d0 and d1 has dependency
-        d0_in_dep = d0["Name"] in depdict
-        d1_in_dep = d1["Name"] in depdict
+        d0_in_dep = "Name" in depdict
+        d1_in_dep = "Name" in depdict
         if not d0_in_dep and not d1_in_dep:
             return 0
         if not d0_in_dep and d1_in_dep:
@@ -228,9 +227,27 @@ def get_slnyaml(depfile, projfiles, vcversion="VC8"):
         if depdict[d1["Name"]].count(d0["Name"]) > 0:
             return -1
         return 0
-
-    #projs.sort(depsort)
     
+    def cmp_to_key(mycmp):
+        class K:
+            def __init__(self, obj, *args):
+                self.obj = obj
+            def __lt__(self, other):
+                return mycmp(self.obj, other.obj) < 0
+            def __gt__(self, other):
+                return mycmp(self.obj, other.obj) > 0
+            def __eq__(self, other):
+                return mycmp(self.obj, other.obj) == 0
+            def __le__(self, other):
+                return mycmp(self.obj, other.obj) <= 0
+            def __ge__(self, other):
+                return mycmp(self.obj, other.obj) >= 0
+            def __ne__(self, other):
+                return mycmp(self.obj, other.obj) != 0
+        return K
+    
+    #    projs.sort(key = cmp_to_key(depsort))
+
     def insertProj(pj, projs):
         for num in range(0, len(projs)):
             if depsort(pj, projs[num]) == -1:
@@ -242,7 +259,7 @@ def get_slnyaml(depfile, projfiles, vcversion="VC8"):
     for pj in projs:
         insertProj(pj, ret_projs)
     projs = ret_projs
-        
+
     for pj in projs:
         list = """  - Name: %s
     FileName: %s
@@ -284,7 +301,7 @@ def main(argv):
         sys.exit(-1)
     try:
         res = parse_args(argv)
-    except SlnToolException, e:
+    except SlnToolException as e:
         print("\n" + e.msg + "\n")
         usage()
         sys.exit(-1)
@@ -301,7 +318,7 @@ def main(argv):
     else:
         fd = open(outfile, "wb")
 
-    fd.write(sln_text)
+    fd.write(sln_text.encode())
 
 #------------------------------------------------------------
 # tests

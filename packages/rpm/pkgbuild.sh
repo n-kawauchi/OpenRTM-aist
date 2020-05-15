@@ -38,7 +38,7 @@ Requires:      omniORB-servers
 #Requires:      ace >= 5.4.0
 BuildRequires: omniORB-devel
 #BuildRequires: ace-devel >= 5.4.0
-BuildRequires: python
+BuildRequires: python3
 
 %description
 OpenRTM-aist is a reference implementation of RTC (Robotic Technology 
@@ -177,7 +177,7 @@ Requires:      omniORB-servers
 #Requires:      ace >= 5.4.0
 BuildRequires: libomniORB4.1-devel
 #BuildRequires: ace-devel >= 5.4.0
-BuildRequires: python
+BuildRequires: python3
 
 %description
 OpenRTM-aist is a reference implementation of RTC (Robotic Technology 
