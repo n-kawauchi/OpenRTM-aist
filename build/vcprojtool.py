@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # @brief VCProject file generator
 # @date $Date: 2008-02-29 04:52:14 $
@@ -804,7 +804,7 @@ Configurations:
 
 
 def usage():
-    print("""Usage:
+    msg = """Usage:
   vcprojtool.py cmd options
 commands:
   vcproj: Generate vcproj
@@ -819,7 +819,8 @@ examples:
                      --resource *.txt
   vcprojtool.py yaml --type [exe|dll|nmake|lib] --output
   vcprojtool.py flist --out --source|--header|--resource *
-""")
+"""
+    print(msg)
 
 import sys
 
@@ -864,20 +865,19 @@ class VCProject:
     def get_template(self, type):
         return vcproj_template % (conf_type[type], self.tool_element(type))
 
-    def escape_cmdline(self, dict):
-        if not "Configurations" in dict: return
+    def escape_cmdline(self, dictdata):
+        if not "Configurations" in dictdata: return
     
         def escape_cmd(text):
             text = text.replace("\"", "&quot;")
             text = text.replace("\r\n", "\n")
             text = text.replace("\n", "&#x0D;&#x0A;")
             return text
-        from types import DictType, ListType
-        for conf in dict["Configurations"]:
+        for conf in dictdata["Configurations"]:
             for tool in conf.keys(): # Tool
-                if isinstance(conf[tool], ListType):
+                if isinstance(conf[tool], list):
                     for keyval in conf[tool]:
-                        if isinstance(keyval, DictType) \
+                        if isinstance(keyval, dict) \
                                 and "Key" in keyval \
                                 and "Value" in keyval \
                                 and keyval["Key"] == "CommandLine":
@@ -1091,7 +1091,7 @@ def main(argv):
 
     try:
         res = parse_args(argv)
-    except VCProjException, e:
+    except VCProjException as e:
         print("\n" + e.msg + "\n")
         usage()
         sys.exit(-1)
@@ -1119,7 +1119,7 @@ def main(argv):
     else:
         fd = open(outfile, "wb")
 
-    fd.write(t)
+    fd.write(t.encode())
         
 #------------------------------------------------------------
 # tests

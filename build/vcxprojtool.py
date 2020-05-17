@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # @brief VCXProject file generator
 # @date $Date: 2008-02-29 04:52:14 $
@@ -927,7 +927,7 @@ Configurations:
 
 
 def usage():
-    print("""Usage:
+    msg = """Usage:
   vcprojtool.py cmd options
 commands:
   vcproj: Generate vcproj
@@ -942,7 +942,8 @@ examples:
                      --resource *.txt
   vcprojtool.py yaml --type [exe|dll|nmake|lib] --output
   vcprojtool.py flist --out --source|--header|--resource *
-""")
+"""
+    print(msg)
 rtcdll_yaml = rtcdll_yaml + get_after_config(rtcdll_yaml)
 
 import sys
@@ -967,9 +968,9 @@ class InvalidCommand(VCProjException):
 # VCProject generator class
 #------------------------------------------------------------
 class VCProject:
-    def __init__(self, type, yaml_text):
+    def __init__(self, pjtype, yaml_text):
         import yaml
-        self.type = type
+        self.type = pjtype
         self.dict = yaml.load(yaml_text)
         self.escape_cmdline(self.dict)
 
@@ -1021,24 +1022,22 @@ class VCProject:
         return text
 
 
-    def get_template(self, type):
-        #return vcxproj_template % (conf_type[type], conf_type[type], self.tool_element(type))
-        return vcxproj_template % (conf_type[type], self.PreBuildEventtool_element(type), self.CLtool_element(type), self.Libtool_element(type), self.PreLinkEventtool_element(type), self.Linktool_element(type), self.PostBuildEventtool_element(type))
+    def get_template(self, typename):
+        return vcxproj_template % (conf_type[typename], self.PreBuildEventtool_element(typename), self.CLtool_element(typename), self.Libtool_element(typename), self.PreLinkEventtool_element(typename), self.Linktool_element(typename), self.PostBuildEventtool_element(typename))
 
-    def escape_cmdline(self, dict):
-        if not "Configurations" in dict: return
+    def escape_cmdline(self, dictdata):
+        if not "Configurations" in dictdata: return
     
         def escape_cmd(text):
             text = text.replace("\"", "&quot;")
             text = text.replace("\r\n", "\n")
             text = text.replace("\n", "&#x0D;&#x0A;")
             return text
-        from types import DictType, ListType
-        for conf in dict["Configurations"]:
+        for conf in dictdata["Configurations"]:
             for tool in conf.keys(): # Tool
-                if isinstance(conf[tool], ListType):
+                if isinstance(conf[tool], list):
                     for keyval in conf[tool]:
-                        if isinstance(keyval, DictType) \
+                        if isinstance(keyval, dict) \
                                 and "Key" in keyval \
                                 and "Value" in keyval \
                                 and keyval["Key"] == "Command":
@@ -1224,12 +1223,12 @@ def parse_args(argv):
             else: raise InvalidOption(opt + " needs value")
         elif opt == "--type" or opt == "-t":
             i += 1
-            if i < argc: type = argv[i]
+            if i < argc: typename = argv[i]
             else: raise InvalidOption(opt + " needs value")
-            type = type.upper()
-            if not type in conf_type:
+            typename = typename.upper()
+            if not typename in conf_type:
                 raise InvalidOption("unknown type: "
-                                    + type + "\n" +
+                                    + typename + "\n" +
                                     "    --type should be [exe|dll|nmake|lib]")
         elif opt[:2] == "--" and opt[2:] in flist:
             lname = opt[2:]
@@ -1244,7 +1243,7 @@ def parse_args(argv):
         else:
             raise InvalidOption("unknown option: " + opt)
         i += 1
-    return (cmd, vcversion, projectname, version, outfname, type, flist)
+    return (cmd, vcversion, projectname, version, outfname, typename, flist)
 
 #------------------------------------------------------------
 # main function
@@ -1256,7 +1255,7 @@ def main(argv):
 
     try:
         res = parse_args(argv)
-    except VCProjException, e:
+    except VCProjException as e:
         print("\n" + e.msg + "\n")
         usage()
         sys.exit(-1)
@@ -1266,25 +1265,25 @@ def main(argv):
     projectname = res[2]
     version = res[3]
     outfile = res[4]
-    type = res[5]
+    pjtype = res[5]
     flist = res[6]
 
     if cmd == "vcxproj":
-        t = VCProject(type,
-                      YamlConfig(type, vcversion,
+        t = VCProject(pjtype,
+                      YamlConfig(pjtype, vcversion,
                                  projectname, version, flist).generate()
                       ).generate()
     elif cmd == "flist":
         t = FileList(flist).generate()
     elif cmd == "yaml":
-        t = YamlConfig(type, vcversion, projectname, version, flist).generate()
+        t = YamlConfig(pjtype, vcversion, projectname, version, flist).generate()
 
     if outfile == None:
         fd = sys.stdout
     else:
         fd = open(outfile, "wb")
 
-    fd.write(t)
+    fd.write(t.encode())
         
 #------------------------------------------------------------
 # tests

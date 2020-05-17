@@ -17,5 +17,5 @@ EXTRA_DIST =                   \
 	makedeffile.py         \
 	slntool.py             \
 	yat.py                 \
-	platform.sh            \
-	uuid.py
+	platform.sh
+
