@@ -445,6 +445,7 @@ if test "x$with_rtorb" != "x" ; then
 fi
 if test "x$orb_to_use" = "x" ; then
 	orb_to_use=omniORB
+	with_omniorb=/usr
 fi
 
 echo 'ORB: '$orb_to_use
