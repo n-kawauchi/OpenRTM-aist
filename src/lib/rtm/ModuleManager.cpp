@@ -607,6 +607,7 @@ namespace RTC
 		}
         p["module_file_name"] = coil::basename(modules[i].c_str());
         p["module_file_path"] = modules[i].c_str();
+        p["language"] = lang.c_str();
         modprops.push_back(p);
         
       }
