@@ -76,13 +76,14 @@ namespace coil
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
-            std::string match_str = replaceString(match.str(), "\"", "");
+            std::string match_str = match.str();
+            match_str = replaceString(match_str, "\"", "");
             vstr.push_back(match_str);
         }
         
-        Argv argv(vstr);
+        char* const * argv = ::coil::toArgv(vstr);
 
-        execvp(vstr.front().c_str(), argv.get());
+        execvp(vstr.front().c_str(), argv);
         
         return -1;
       }
