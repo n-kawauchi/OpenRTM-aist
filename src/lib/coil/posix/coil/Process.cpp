@@ -29,7 +29,6 @@
 #include <sys/stat.h>
 #include <coil/stringutil.h>
 #include <coil/File.h>
-#include <regex>
 
 
 namespace coil
@@ -68,17 +67,47 @@ namespace coil
         //        dup2(0, 2);
         //        umask(0);
 
-        const std::regex base_regex("((?:[^\\s\"\\\\]|\\\\.|\"(?:\\\\.|[^\\\\\"])*(?:\"|$))+)");
-        std::sregex_iterator words_begin = std::sregex_iterator(command.begin(), command.end(), base_regex);
-        std::sregex_iterator words_end = std::sregex_iterator();
-
         coil::vstring vstr;
-
-        for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-            std::smatch match = *i;
-            std::string match_str = match.str();
-            match_str = replaceString(match_str, "\"", "");
-            vstr.push_back(match_str);
+        unsigned int count = 0;
+        std::string part;
+        for(std::string::const_iterator i=command.begin();i != command.end();++i)
+        {
+            std::string c = std::string() + (*i);
+            if(c == "\"")
+            {
+                if(count%2 == 1)
+                {
+                    if(!part.empty())
+                    {
+                        vstr.push_back(part);
+                        part.clear();
+                    }
+                }
+                count += 1;
+            }
+            else if(c == " ")
+            {
+                if(count%2 == 0)
+                {
+                    if(!part.empty())
+                    {
+                        vstr.push_back(part);
+                        part.clear();
+                    }
+                }
+                else
+                {
+                    part += c;
+                }
+            }
+            else
+            {
+                part += c;
+            }
+        }
+        if(!part.empty())
+        {
+            vstr.push_back(part);
         }
         
         char* const * argv = ::coil::toArgv(vstr);
