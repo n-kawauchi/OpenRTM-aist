@@ -67,7 +67,49 @@ namespace coil
         //        dup2(0, 2);
         //        umask(0);
 
-        coil::vstring vstr(::coil::split(command, " "));
+        coil::vstring vstr;
+        unsigned int count = 0;
+        std::string part;
+        for(std::string::const_iterator i=command.begin();i != command.end();++i)
+        {
+            std::string c = std::string() + (*i);
+            if(c == "\"")
+            {
+                if(count%2 == 1)
+                {
+                    if(!part.empty())
+                    {
+                        vstr.push_back(part);
+                        part.clear();
+                    }
+                }
+                count += 1;
+            }
+            else if(c == " ")
+            {
+                if(count%2 == 0)
+                {
+                    if(!part.empty())
+                    {
+                        vstr.push_back(part);
+                        part.clear();
+                    }
+                }
+                else
+                {
+                    part += c;
+                }
+            }
+            else
+            {
+                part += c;
+            }
+        }
+        if(!part.empty())
+        {
+            vstr.push_back(part);
+        }
+        
         char* const * argv = ::coil::toArgv(vstr);
 
         execvp(vstr.front().c_str(), argv);
