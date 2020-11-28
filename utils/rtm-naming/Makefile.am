@@ -13,10 +13,10 @@ ORB = @ORB@
 bin_SCRIPTS = rtm-naming
 
 rtm-naming: rtm-naming.in
-	echo '#!/bin/sh' > $@
+	echo '#!/bin/bash' > $@
 	echo '' >> $@
-	echo 'cosnames="'${COSNAMES}'"' >> $@
-	echo 'orb="'${ORB}'"' >> $@
+	echo 'COSNAMES="'${COSNAMES}'"' >> $@
+	echo 'ORB="'${ORB}'"' >> $@
 	cat rtm-naming.in >> $@
 	chmod 755 $@
 
