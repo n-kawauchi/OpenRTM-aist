@@ -1118,7 +1118,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    std::string toString();
+    const std::string toString() const;
     /*!
      * @if jp
      *
@@ -1136,7 +1136,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    std::string getProtocol();
+    const  std::string getProtocol() const;
     /*!
      * @if jp
      *
@@ -1153,7 +1153,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    std::string getHost();
+    const  std::string getHost() const;
     /*!
      * @if jp
      *
@@ -1170,7 +1170,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    unsigned short getPort();
+    const unsigned short getPort() const;
     /*!
      * @if jp
      *
@@ -1188,7 +1188,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    bool isAddressOnly();
+    const bool isAddressOnly() const;
   private:
     std::string m_protocol;
     std::string m_host;
