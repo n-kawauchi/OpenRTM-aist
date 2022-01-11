@@ -1686,6 +1686,47 @@ namespace CORBA_RTCUtil
     return m_protocol;
   }
 
+  /*!
+   * @if jp
+   *
+   * @brief ホスト名を取得する
+   *
+   * @return ホスト名
+   *
+   * @else
+   *
+   * @brief 
+   *
+   *
+   * @return 
+   *
+   * @endif
+   */
+  std::string CorbaURI::getHost()
+  {
+    return m_host;
+  }
+  /*!
+   * @if jp
+   *
+   * @brief ポート番号を取得する
+   *
+   * @return ポート番号
+   *
+   * @else
+   *
+   * @brief 
+   *
+   *
+   * @return 
+   *
+   * @endif
+   */
+  unsigned short CorbaURI::getPort()
+  {
+    return m_port;
+  }
+
  /*!
   * @if jp
   *

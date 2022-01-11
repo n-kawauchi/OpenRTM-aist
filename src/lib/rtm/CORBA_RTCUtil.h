@@ -1140,6 +1140,40 @@ namespace CORBA_RTCUtil
     /*!
      * @if jp
      *
+     * @brief ホスト名を取得する
+     *
+     * @return ホスト名
+     *
+     * @else
+     *
+     * @brief 
+     *
+     *
+     * @return 
+     *
+     * @endif
+     */
+    std::string getHost();
+    /*!
+     * @if jp
+     *
+     * @brief ポート番号を取得する
+     *
+     * @return ポート番号
+     *
+     * @else
+     *
+     * @brief 
+     *
+     *
+     * @return 
+     *
+     * @endif
+     */
+    unsigned short getPort();
+    /*!
+     * @if jp
+     *
      * @brief 初期化時にCORBAオブジェクト参照用URLを指定した場合はfalse、
      * ホスト名、ポート番号のみを指定した場合はtrueを返す。
      *
