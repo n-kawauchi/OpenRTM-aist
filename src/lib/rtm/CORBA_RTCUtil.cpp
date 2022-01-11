@@ -1659,7 +1659,7 @@ namespace CORBA_RTCUtil
    *
    * @endif
    */
-  const std::string CorbaURI::toString() const
+  std::string CorbaURI::toString() const
   {
     return m_uri;
   }
@@ -1681,7 +1681,7 @@ namespace CORBA_RTCUtil
    *
    * @endif
    */
-  const std::string CorbaURI::getProtocol() const
+  std::string CorbaURI::getProtocol() const
   {
     return m_protocol;
   }
@@ -1702,7 +1702,7 @@ namespace CORBA_RTCUtil
    *
    * @endif
    */
-  const std::string CorbaURI::getHost() const
+  std::string CorbaURI::getHost() const
   {
     return m_host;
   }
@@ -1722,7 +1722,7 @@ namespace CORBA_RTCUtil
    *
    * @endif
    */
-  const unsigned short CorbaURI::getPort() const
+  unsigned short CorbaURI::getPort() const
   {
     return m_port;
   }
@@ -1744,7 +1744,7 @@ namespace CORBA_RTCUtil
   *
   * @endif
   */
-  const bool CorbaURI::isAddressOnly() const
+  bool CorbaURI::isAddressOnly() const
   {
     return m_addressonly;
   }
