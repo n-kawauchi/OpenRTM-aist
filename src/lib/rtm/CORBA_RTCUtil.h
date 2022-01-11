@@ -1101,7 +1101,7 @@ namespace CORBA_RTCUtil
      *
      * @endif
      */
-    ~CorbaURI() = default;
+    ~CorbaURI();
     /*!
      * @if jp
      *

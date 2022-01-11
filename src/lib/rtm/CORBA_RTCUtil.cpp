@@ -1629,6 +1629,23 @@ namespace CORBA_RTCUtil
   /*!
    * @if jp
    *
+   * @brief デストラクタ
+   *
+   * デストラクタ
+   *
+   * @else
+   *
+   * @brief Destructor
+   *
+   * Destructor
+   *
+   * @endif
+   */
+  CorbaURI::~CorbaURI(){}
+
+  /*!
+   * @if jp
+   *
    * @brief CORBAオブジェクト参照用URLを取得する
    *
    * @return CORBAオブジェクト参照用URL
