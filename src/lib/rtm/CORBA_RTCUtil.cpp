@@ -1511,6 +1511,18 @@ namespace CORBA_RTCUtil
     {
       uri = coil::replaceString(uri, "iiop://", "corbaloc:iiop:");
     }
+    else if(uri.find("diop://") == 0)
+    {
+      uri = coil::replaceString(uri, "diop://", "corbaloc:diop:");
+    }
+    else if(uri.find("uiop://") == 0)
+    {
+      uri = coil::replaceString(uri, "uiop://", "corbaloc:uiop:");
+    }
+    else if(uri.find("shmiop://") == 0)
+    {
+      uri = coil::replaceString(uri, "shmiop://", "corbaloc:shmiop:");
+    }
     else if(uri.find("inet:") == 0)
     {
       uri = coil::replaceString(uri, "inet:", "corbaloc:iiop:");

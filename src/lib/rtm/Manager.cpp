@@ -1623,6 +1623,18 @@ std::vector<coil::Properties> Manager::getLoadableModules()
     {
       return true;
     }
+    else if(endpoint.find("diop://") != std::string::npos)
+    {
+      return true;
+    }
+    else if(endpoint.find("uiop://") != std::string::npos)
+    {
+      return true;
+    }
+    else if(endpoint.find("shmiop://") != std::string::npos)
+    {
+      return true;
+    }
     else if(endpoint.find("inet:") != std::string::npos)
     {
       return true;
