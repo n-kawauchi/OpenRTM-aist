@@ -19,6 +19,9 @@
 
 #include <rtm/CORBA_RTCUtil.h>
 #include <rtm/NamingManager.h>
+#ifdef ORB_IS_OMNIORB
+#include <omniORB4/omniURI.h>
+#endif
 
 #include <utility>
 
@@ -1458,5 +1461,235 @@ namespace CORBA_RTCUtil
 
     return true;
   }
+
+
+ /*!
+  * @if jp
+  *
+  * @brief コンストラクタ
+  *
+  * コンストラクタ
+  *
+  * @param uri CORBAオブジェクト参照用URL
+  * @param objkey オブジェクト名
+  *
+  * @else
+  *
+  * @brief Constructor
+  *
+  * Constructor
+  *
+  * @param uri 
+  * @param objkey 
+  *
+  * @endif
+  */
+  CorbaURI::CorbaURI(std::string uri, const std::string &objkey) : m_port(0), m_addressonly(false)
+  {
+
+#ifdef RTM_OMNIORB_43
+    CORBA::String_var scheme, host, path, fragment;
+    CORBA::UShort port;
+
+    if(uri.find("giop:tcp:") == 0)
+    {
+      uri = coil::replaceString(uri, "giop:tcp:", "corbaloc:iiop:");
+    }
+    else if(uri.find("giop:ssl:") == 0)
+    {
+      uri = coil::replaceString(uri, "giop:ssl:", "corbaloc:ssliop:");
+    }
+    else if(uri.find("giop:http:") == 0)
+    {
+      uri = coil::replaceString(uri, "giop:http:", "");
+    }
+    else if(uri.find("giop::") == 0)
+    {
+      uri = coil::replaceString(uri, "giop::", "corbaloc:iiop:");
+    }
+    else if(uri.find("iiop://") == 0)
+    {
+      uri = coil::replaceString(uri, "iiop://", "corbaloc:iiop:");
+    }
+    else if(uri.find("inet:") == 0)
+    {
+      uri = coil::replaceString(uri, "inet:", "corbaloc:iiop:");
+    }
+
+    CORBA::Boolean ret = 
+      omni::omniURI::extractURL(uri.c_str(),
+                          scheme.out(), host.out(),
+                          port, path.out(), fragment.out());
+
+    if(ret)
+    {
+      m_protocol = scheme.in();
+      m_host = host.in();
+      m_port = static_cast<unsigned short>(port);
+      m_path = path.in();
+      m_fragment = fragment.in();
+      if(!m_fragment.empty())
+      {
+        m_uri = uri;
+      }
+      else
+      {
+        m_fragment = objkey;
+        m_uri = uri + "#";
+        m_uri += m_fragment;
+      }
+      return;
+    }
+    else
+    {
+      m_fragment = objkey;
+      if(uri.find("corbaloc") == 0)
+      {
+        m_uri = uri;
+        if(!m_fragment.empty())
+        {
+          m_uri += "/";
+          m_uri += m_fragment;
+        }
+        m_protocol = "corbaloc";
+        return;
+      }
+      else if(uri.find("corbaname") == 0)
+      {
+        m_uri = uri;
+        if(!m_fragment.empty())
+        {
+          m_uri +=  "#";
+          m_uri += m_fragment;
+        }
+        m_protocol = "corbaname";
+        return;
+      }
+      else
+      {
+        m_uri = "corbaloc:iiop:";
+        m_uri += uri;
+        if(!m_fragment.empty())
+        {
+          m_uri += "/";
+          m_uri += m_fragment;
+        }
+        m_protocol = "corbaloc";
+        m_addressonly = true;
+        coil::vstring host_port(coil::split(uri, ":"));
+        if (host_port.size() == 2)
+        {
+          m_host = host_port[0];
+          coil::stringTo(m_port, host_port[1].c_str());
+        }
+        return;
+      }
+    }
+#else
+    m_fragment = objkey;
+    if(uri.find("corbaloc") == 0)
+    {
+      m_uri = uri;
+      if(!m_fragment.empty())
+      {
+        m_uri += "/";
+        m_uri += m_fragment;
+      }
+      m_protocol = "corbaloc";
+      return;
+    }
+    else if(uri.find("corbaname") == 0)
+    {
+      m_uri = uri;
+      if(!m_fragment.empty())
+      {
+        m_uri += "#";
+        m_uri += m_fragment;
+      }
+      m_protocol = "corbaname";
+      return;
+    }
+    else
+    {
+      m_uri = "corbaloc:iiop:";
+      m_uri += uri;
+      if(!m_fragment.empty())
+      {
+        m_uri += "/";
+        m_uri += m_fragment;
+      }
+      m_protocol = "corbaloc";
+      m_addressonly = true;
+      return;
+    }
+#endif
+
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief CORBAオブジェクト参照用URLを取得する
+   *
+   * @return CORBAオブジェクト参照用URL
+   *
+   * @else
+   *
+   * @brief 
+   *
+   *
+   * @return 
+   *
+   * @endif
+   */
+  std::string CorbaURI::toString()
+  {
+    return m_uri;
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief 参照形式を取得する
+   * 例：corbaloc、corbaname、http、https、ws、wss
+   *
+   * @return 参照形式
+   *
+   * @else
+   *
+   * @brief 
+   *
+   *
+   * @return 
+   *
+   * @endif
+   */
+  std::string CorbaURI::getProtocol()
+  {
+    return m_protocol;
+  }
+
+ /*!
+  * @if jp
+  *
+  * @brief 初期化時にCORBAオブジェクト参照用URLを指定した場合はfalse、
+  * ホスト名、ポート番号のみを指定した場合はtrueを返す。
+  *
+  * @return 参照先の指定方法
+  *
+  * @else
+  *
+  * @brief 
+  *
+  *
+  * @return 
+  *
+  * @endif
+  */
+  bool CorbaURI::isAddressOnly()
+  {
+    return m_addressonly;
+  }
+
 } // namespace CORBA_RTCUtil
 
