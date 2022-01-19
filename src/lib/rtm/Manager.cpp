@@ -1635,6 +1635,10 @@ std::vector<coil::Properties> Manager::getLoadableModules()
     {
       return true;
     }
+    else if(endpoint.find("htiop://") != std::string::npos)
+    {
+      return true;
+    }
     else if(endpoint.find("inet:") != std::string::npos)
     {
       return true;

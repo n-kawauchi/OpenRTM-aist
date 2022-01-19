@@ -1486,11 +1486,6 @@ namespace CORBA_RTCUtil
   */
   CorbaURI::CorbaURI(std::string uri, const std::string &objkey) : m_port(0), m_addressonly(false)
   {
-
-#ifdef RTM_OMNIORB_43
-    CORBA::String_var scheme, host, path, fragment;
-    CORBA::UShort port;
-
     if(uri.find("giop:tcp:") == 0)
     {
       uri = coil::replaceString(uri, "giop:tcp:", "corbaloc:iiop:");
@@ -1523,10 +1518,17 @@ namespace CORBA_RTCUtil
     {
       uri = coil::replaceString(uri, "shmiop://", "corbaloc:shmiop:");
     }
+    else if(uri.find("htiop://") == 0)
+    {
+      uri = coil::replaceString(uri, "htiop://", "corbaloc:htiop:");
+    }
     else if(uri.find("inet:") == 0)
     {
       uri = coil::replaceString(uri, "inet:", "corbaloc:iiop:");
     }
+#ifdef RTM_OMNIORB_43
+    CORBA::String_var scheme, host, path, fragment;
+    CORBA::UShort port;
 
     CORBA::Boolean ret = 
       omni::omniURI::extractURL(uri.c_str(),
