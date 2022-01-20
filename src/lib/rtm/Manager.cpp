@@ -1526,7 +1526,7 @@ std::vector<coil::Properties> Manager::getLoadableModules()
 #if defined(ORB_IS_TAO) && defined(SSL_ENABLE)
         for(size_t i=0;i < args.size();i++)
         {
-          if(args[i] == "-ORBEndpoint")
+          if(args[i].find("-ORB") != std::string::npos && args[i].find("Endpoint") != std::string::npos)
           {
             if(i < args.size()-1)
             {
