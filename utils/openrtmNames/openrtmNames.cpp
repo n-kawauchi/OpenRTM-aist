@@ -103,14 +103,27 @@ int main(int argc, char **argv)
 
 #ifdef ORB_IS_TAO
 #ifdef SSL_ENABLE
-        CORBA::Object_var sec_man =
-          orb->resolve_initial_references ("SecurityLevel2:SecurityManager");
-        SecurityLevel2::SecurityManager_var sec2manager =
-          SecurityLevel2::SecurityManager::_narrow (sec_man.in ());
-        SecurityLevel2::AccessDecision_var ad_tmp = sec2manager->access_decision ();
-        TAO::SL2::AccessDecision_var ad =
-          TAO::SL2::AccessDecision::_narrow (ad_tmp.in ());
-        ad->default_collocated_decision (true);
+    for(size_t i=0;i < args.size();i++)
+    {
+      if(args[i].find("-ORB") != std::string::npos && args[i].find("Endpoint") != std::string::npos)
+      {
+        if(i < args.size()-1)
+        {
+          if(args[i+1].find("ssliop://") != std::string::npos)
+          {
+            CORBA::Object_var sec_man =
+              orb->resolve_initial_references ("SecurityLevel2:SecurityManager");
+            SecurityLevel2::SecurityManager_var sec2manager =
+              SecurityLevel2::SecurityManager::_narrow (sec_man.in ());
+            SecurityLevel2::AccessDecision_var ad_tmp = sec2manager->access_decision ();
+            TAO::SL2::AccessDecision_var ad =
+              TAO::SL2::AccessDecision::_narrow (ad_tmp.in ());
+            ad->default_collocated_decision (true);
+            break;
+          }
+        }
+      }
+    }
 #endif
 #endif
 
