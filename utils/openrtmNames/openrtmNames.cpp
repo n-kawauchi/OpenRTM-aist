@@ -28,6 +28,9 @@
 #endif
 #elif defined(ORB_IS_TAO)
 #include <tao/IORTable/IORTable.h>
+#ifdef SSL_ENABLE
+#include <orbsvcs/SecurityLevel2C.h>
+#endif
 #endif
 #include <rtm/ManagerConfig.h>
 #include <coil/stringutil.h>
@@ -98,6 +101,18 @@ int main(int argc, char **argv)
 #endif
     orb = CORBA::ORB_init(cargvsize, cargv.get());
 
+#ifdef ORB_IS_TAO
+#ifdef SSL_ENABLE
+        CORBA::Object_var sec_man =
+          orb->resolve_initial_references ("SecurityLevel2:SecurityManager");
+        SecurityLevel2::SecurityManager_var sec2manager =
+          SecurityLevel2::SecurityManager::_narrow (sec_man.in ());
+        SecurityLevel2::AccessDecision_var ad_tmp = sec2manager->access_decision ();
+        TAO::SL2::AccessDecision_var ad =
+          TAO::SL2::AccessDecision::_narrow (ad_tmp.in ());
+        ad->default_collocated_decision (true);
+#endif
+#endif
 
     CORBA::Object_var root_obj = orb->resolve_initial_references("RootPOA");
     root_poa = PortableServer::POA::_narrow(root_obj);
