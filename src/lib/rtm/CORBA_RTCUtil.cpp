@@ -1767,5 +1767,224 @@ namespace CORBA_RTCUtil
     return m_addressonly;
   }
 
+
+  /*!
+   * @if jp
+   *
+   * @brief コンストラクタ
+   *
+   * コンストラクタ
+   *
+   * 
+   *
+   * @param uri rtcname形式、もしくはrtcloc形式のURI
+   * @param isrtcname rtcname形式を指定する場合はtrue、それ以外はfalse
+   * @param isrtcloc rtcloc形式を指定する場合はtrue、それ以外はfalse
+   *
+   * @else
+   *
+   * @brief Constructor
+   *
+   * Constructor
+   *
+   * @param uri 
+   * @param isrtcname 
+   * @param isrtcloc 
+   *
+   * @endif
+   */
+  RTCURIObject::RTCURIObject(const std::string& uri, bool isrtcname, bool isrtcloc)
+    : m_is_rtcname(false), m_is_rtcloc(false)
+  {
+    size_t pos = uri.find("://");
+    if (pos != std::string::npos)
+    {
+      std::string type = uri.substr(0, pos);
+      std::string addrname = uri.substr(pos + 3);
+      std::string protocol;
+
+      if (type.find("rtcname") == 0)
+      {
+        m_is_rtcname = true;
+      }
+      else if (type.find("rtcloc") == 0)
+      {
+        m_is_rtcloc = true;
+      }
+      else
+      {
+        return;
+      }
+
+      if (isrtcname)
+      {
+        if (!m_is_rtcname)return;
+      }
+
+      if (isrtcloc)
+      {
+        if (!m_is_rtcloc)return;
+      }
+
+      pos = type.find_first_of(".");
+
+      std::string seprtc = "/";
+      if (pos != std::string::npos)
+      {
+        protocol = type.substr(pos+1);
+        if (protocol == "http" || protocol == "https" || protocol == "ws" || protocol == "wss")
+        {
+          seprtc = "#";
+        }
+      }
+
+      pos = addrname.find_first_of(seprtc);
+      std::string hostport;
+      if (pos != std::string::npos)
+      {
+        hostport = addrname.substr(0, pos);
+        m_rtcpath = addrname.substr(pos + 1);
+      }
+      else
+      {
+        m_rtcpath = addrname;
+      }
+      
+
+      if (protocol == "http" || protocol == "https" || protocol == "ws" || protocol == "wss")
+      {
+        m_address = protocol;
+        m_address += "://";
+        m_address += hostport;
+      }
+      else
+      {
+        m_address = "corbaloc:";
+        m_address += protocol;
+        m_address += ":";
+        m_address += hostport;
+      }
+
+    }
+  }
+
+
+  /*!
+   * @if jp
+   *
+   * @brief デストラクタ
+   *
+   * デストラクタ
+   *
+   * @else
+   *
+   * @brief Destructor
+   *
+   * Destructor
+   *
+   * @endif
+   */
+  RTCURIObject::~RTCURIObject()
+  {
+
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief RTC名を取得する
+   *
+   * rtcname形式の場合はネームサーバーに登録したRTCのパスを取得できる。
+   * context1.kind1/context2.kind2/..../RTC_name
+   *
+   * rtcloc形式の場合はカテゴリ名/RTC名で取得できる。
+   *
+   * @return RTC名
+   *
+   * @else
+   *
+   * @brief 
+   *
+   * 
+   *
+   * @return
+   *
+   * @endif
+   */
+  std::string RTCURIObject::getRTCName() const
+  {
+    return m_rtcpath;
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief 通信先のアドレスを取得する
+   *
+   *
+   * context1.kind1/context2.kind2/..../RTC_name
+   *
+   * rtcloc形式の場合はカテゴリ名/RTC名で取得できる。
+   *
+   * category_name/RTC_name
+   *
+   * @return RTC名
+   *
+   * @else
+   *
+   * @brief
+   *
+   *
+   * @return
+   *
+   * @endif
+   */
+  std::string RTCURIObject::getAddress() const
+  {
+    return m_address;
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief URIがrtcname形式かを判定する
+   *
+   * @return true：rtcname形式、false：それ以外
+   *
+   * @else
+   *
+   * @brief
+   *
+   *
+   * @return
+   *
+   * @endif
+   */
+  bool RTCURIObject::isRTCNameURI() const
+  {
+    return m_is_rtcname;
+  }
+
+  /*!
+   * @if jp
+   *
+   * @brief URIがrtcloc形式かを判定する
+   *
+   * @return true：rtcname形式、false：それ以外
+   *
+   * @else
+   *
+   * @brief
+   *
+   *
+   * @return
+   *
+   * @endif
+   */
+  bool RTCURIObject::isRTCLocURI() const
+  {
+    return m_is_rtcloc;
+  }
+
 } // namespace CORBA_RTCUtil
 
