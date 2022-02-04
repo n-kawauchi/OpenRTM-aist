@@ -49,6 +49,7 @@ namespace RTC
    */
   ROSInPort::ROSInPort(void)
    : m_buffer(nullptr),
+     m_tcp_nodelay(true),
      m_roscoreport(ROS_DEFAULT_MASTER_PORT)
   {
     // PortProfile setting
@@ -141,6 +142,9 @@ namespace RTC
     m_topic = "/" + m_topic;
 
 
+    m_tcp_nodelay = coil::toBool(prop["ros.tcp_nodelay"], "YES", "NO", true);
+
+
     m_roscorehost = prop.getProperty("ros.roscore.host");
     std::string tmp_port = prop.getProperty("ros.roscore.port");
     if(m_roscorehost.empty() && tmp_port.empty())
@@ -221,7 +225,7 @@ namespace RTC
     if(!info)
     {
       RTC_ERROR(("Can not find message type(%s)", m_messageType.c_str()));
-      return;
+      throw;
     }
 
     request[0] = m_callerid;
@@ -237,7 +241,7 @@ namespace RTC
     if(!b)
     {
       RTC_ERROR(("XML-RCP Error"));
-      return;
+      throw;
     }
     
 
@@ -402,7 +406,14 @@ namespace RTC
       header["md5sum"] = info->md5sum();
       header["callerid"] = m_callerid;
       header["type"] = info->type();
-      header["tcp_nodelay"] = "1";
+      if(m_tcp_nodelay)
+      {
+        header["tcp_nodelay"] = "1";
+      }
+      else
+      {
+        header["tcp_nodelay"] = "0";
+      }
 
       RTC_VERBOSE(("writeHeader()"));
       RTC_VERBOSE(("Message Type:%s", info->type().c_str()));

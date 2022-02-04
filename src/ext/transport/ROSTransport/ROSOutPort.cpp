@@ -167,7 +167,7 @@ namespace RTC
     if(!info)
     {
       RTC_ERROR(("Can not find message type(%s)", m_messageType.c_str()));
-      return;
+      throw;
     }
 
 
@@ -182,6 +182,7 @@ namespace RTC
     if(!b)
     {
       RTC_ERROR(("XML-RCP Error"));
+      throw;
     }
   }
 
