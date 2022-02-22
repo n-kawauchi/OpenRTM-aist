@@ -27,10 +27,15 @@
 #include <ros/network.h>
 #include <ros/poll_manager.h>
 #include <ros/connection_manager.h>
-#include <coil/OS.h>
-#include <coil/stringutil.h>
 #include "ROSInPort.h"
 #include "ROSTopicManager.h"
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#ifdef getpid
+#undef getpid
+#endif
+#endif
+#include <coil/OS.h>
+#include <coil/stringutil.h>
 
 
 #define ROS_MASTER_URI "ROS_MASTER_URI"
