@@ -48,6 +48,18 @@ namespace ROSRTM
     "tcp_nodelay.__value__", "YES",
     "tcp_nodelay.__widget__", "radio",
     "tcp_nodelay.__constraint__", "(YES, NO)",
+    "so_keepalive.__value__", "YES",
+    "so_keepalive.__widget__", "radio",
+    "so_keepalive.__constraint__", "(YES, NO)",
+    "tcp_keepcnt.__value__", "9",
+    "tcp_keepcnt.__widget__", "spin",
+    "tcp_keepcnt.__constraint__", "1 <= x <= 10000",
+    "tcp_keepidle.__value__", "60",
+    "tcp_keepidle.__widget__", "spin",
+    "tcp_keepidle.__constraint__", "1 <= x <= 10000",
+    "tcp_keepintvl.__value__", "10",
+    "tcp_keepintvl.__widget__", "spin",
+    "tcp_keepintvl.__constraint__", "1 <= x <= 10000",
     ""
   };
 
@@ -68,6 +80,9 @@ namespace ROSRTM
     "node.anonymous.__value__", "NO",
     "node.anonymous.__widget__", "radio",
     "node.anonymous.__constraint__", "(YES, NO)",
+    "tcp_nodelay.__value__", "YES",
+    "tcp_nodelay.__widget__", "radio",
+    "tcp_nodelay.__constraint__", "(YES, NO)",
     ""
   };
 

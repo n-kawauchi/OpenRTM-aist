@@ -42,7 +42,7 @@ namespace RTC
    * @endif
    */
   ROSOutPort::ROSOutPort(void)
-    : rtclog("ROSOutPort"), m_start(false), m_roscoreport(ROS_DEFAULT_MASTER_PORT), m_message_data_sent(0)
+    : rtclog("ROSOutPort"), m_start(false), m_tcp_nodelay(true), m_roscoreport(ROS_DEFAULT_MASTER_PORT), m_message_data_sent(0)
   {
   }
   
@@ -90,6 +90,8 @@ namespace RTC
 
     m_topic = prop.getProperty("ros.topic", "chatter");
     m_topic = "/" + m_topic;
+
+    m_tcp_nodelay = coil::toBool(prop["ros.tcp_nodelay"], "YES", "NO", true);
 
     m_roscorehost = prop.getProperty("ros.roscore.host");
     std::string tmp_port = prop.getProperty("ros.roscore.port");
@@ -376,6 +378,14 @@ namespace RTC
     m["callerid"] = m_callerid;
     m["latching"] = "0";
     m["topic"] = topic;
+    if (m_tcp_nodelay)
+    {
+      m["tcp_nodelay"] = "1";
+    }
+    else
+    {
+      m["tcp_nodelay"] = "0";
+    }
     
 
     RTC_VERBOSE(("TCPTransPort created"));
@@ -384,6 +394,7 @@ namespace RTC
     RTC_VERBOSE(("Message Definition:%s", info->message_definition().c_str()));
     RTC_VERBOSE(("Caller ID:%s", m_callerid.c_str()));
     RTC_VERBOSE(("Topic Name:%s", topic.c_str()));
+    RTC_VERBOSE(("TCP Nodelay:%s", (m_tcp_nodelay ? "true" : "false")));
     RTC_VERBOSE(("TCPTransPort created"));
 
 
