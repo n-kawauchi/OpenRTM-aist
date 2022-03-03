@@ -149,6 +149,8 @@ extern "C"
     }
     ROSSerializerInit(manager);
 
+    RTC::ROSTopicManager::init();
+
     ROSRTM::ManagerActionListener *listener = new ROSRTM::ManagerActionListener();
     manager->addManagerActionListener(listener);
   }
