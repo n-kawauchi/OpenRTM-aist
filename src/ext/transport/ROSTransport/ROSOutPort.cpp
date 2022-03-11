@@ -169,7 +169,7 @@ namespace RTC
     if(!info)
     {
       RTC_ERROR(("Can not find message type(%s)", m_messageType.c_str()));
-      throw;
+      throw std::bad_alloc();
     }
 
 
@@ -184,7 +184,7 @@ namespace RTC
     if(!b)
     {
       RTC_ERROR(("XML-RCP Error"));
-      throw;
+      throw std::bad_alloc();
     }
   }
 
