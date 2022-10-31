@@ -384,8 +384,7 @@ namespace RTC
     int dest_port = response[2][2];
 
     ros::TransportTCPPtr transport(boost::make_shared<ros::TransportTCP>(&ros::PollManager::instance()->getPollSet()));
-    transport->setKeepAlive(m_so_keepalive, m_tcp_keepidle, m_tcp_keepintvl, m_tcp_keepcnt);
-    transport->setNoDelay(m_tcp_nodelay);
+
 
     RTC_VERBOSE(("SO_KEEPALIVE:%s", (m_so_keepalive ? "true" : "false")));
     RTC_VERBOSE(("TCP_KEEPCNT:%d", (m_tcp_keepcnt)));
@@ -398,6 +397,10 @@ namespace RTC
 
     if (transport->connect(dest_addr, dest_port))
     {
+
+      transport->setKeepAlive(m_so_keepalive, m_tcp_keepidle, m_tcp_keepintvl, m_tcp_keepcnt);
+      transport->setNoDelay(m_tcp_nodelay);
+
       ros::ConnectionPtr connection = ros::ConnectionPtr(boost::make_shared<ros::Connection>());
       connection->initialize(transport, false, ros::HeaderReceivedFunc());
       connection->setHeaderReceivedCallback(boost::bind(&ROSInPort::onHeaderReceived, this, _1, _2));
