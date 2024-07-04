@@ -36,14 +36,18 @@ RUN cmake --build /tmp/flb/build --target install/strip -- -j$(nproc)
 
 # install header files.
 RUN cp -r /tmp/flb/build/include/jemalloc\
+ /root/fluent-bit/lib/cfl/include/cfl\
+ /root/fluent-bit/lib/cfl/lib/xxhash/*.h\
  /root/fluent-bit/lib/msgpack-*/include/msgpack.h\
  /root/fluent-bit/lib/msgpack-*/include/msgpack\
+ /root/fluent-bit/lib/ctraces/lib/mpack/src/mpack\
  /root/fluent-bit/lib/c-ares-*/include/*.h\
  /tmp/flb/install/include/
 RUN cp -r /tmp/flb/build/lib/c-ares-*/ares_build.h\
  /tmp/flb/build/lib/c-ares-*/ares_config.h\
  /root/fluent-bit/lib/cmetrics/include/cmetrics\
  /root/fluent-bit/lib/cmetrics/include/prometheus_remote_write\
+ /root/fluent-bit/lib/ctraces/include/ctraces\
  /tmp/flb/install/include/
 RUN cp /tmp/flb/build/lib/monkey/include/monkey/mk_core/mk_core_info.h\
  /tmp/flb/install/include/monkey/mk_core/
