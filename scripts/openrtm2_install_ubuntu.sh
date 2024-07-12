@@ -14,7 +14,7 @@
 # = OPT_UNINST   : uninstallation
 #
 
-VERSION=2.0.2.02
+VERSION=2.0.2.03
 FILENAME=openrtm2_install_ubuntu.sh
 
 #
@@ -675,7 +675,7 @@ install_proc()
   if test "x$arg_rtshell" = "xtrue" ; then
     select_opt_shl="[rtshell] install"
     install_packages python3-pip
-    rtshell_ret=`sudo python3 -m pip install rtshell-aist`
+    rtshell_ret=`PIP_BREAK_SYSTEM_PACKAGES=1 sudo python3 -m pip install rtshell-aist`
     if test "x$rtshell_ret" != "x"; then
       sudo rtshell_post_install -n
     else
@@ -755,7 +755,7 @@ uninstall_proc()
 
   if test "x$arg_rtshell" = "xtrue" ; then
     select_opt_shl="[rtshell] uninstall"
-    rtshell_ret=`sudo python3 -m pip uninstall -y rtshell-aist rtctree-aist rtsprofile-aist`
+    rtshell_ret=`PIP_BREAK_SYSTEM_PACKAGES=1 sudo python3 -m pip uninstall -y rtshell-aist rtctree-aist rtsprofile-aist`
     if test "x$rtshell_ret" = "x"; then
       msg="\n[ERROR] Failed to uninstall rtshell-aist."
       tmp="$err_message$msg"
