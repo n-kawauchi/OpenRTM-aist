@@ -19,7 +19,8 @@ set path=C:\Python%PY_VERSION%;%PATH%
 set INSTALL_PREFIX=C:\localRTM
 
 @rem Boostのインストール先
-set BOOST_PATH=C:\local\boost_1_78_0
+set BOOST_PATH=C:\Boost
+set Boost_DIR=C:\Boost\lib\cmake\Boost-1.87.0
 
 @rem FluentBitのインストール先
 @rem OpenRTM v2.1.0では、FluentBit v3.10.0 でビルド確認している
@@ -50,9 +51,9 @@ set OMNIORB_ZIP=%OMNIORB_DIR%.zip
 set OMNIORB_URL=%base_omni_url%/%OMNIORB_ZIP%
 if not exist %OMNIORB_ZIP% (
   powershell wget -O %OMNIORB_ZIP% %OMNIORB_URL%
+  if exist %OMNIORB_DIR% rmdir /s/q %OMNIORB_DIR%
+  powershell Expand-Archive .\%OMNIORB_ZIP% -DestinationPath .\
 )
-if exist %OMNIORB_DIR% rmdir /s/q %OMNIORB_DIR%
-powershell Expand-Archive .\%OMNIORB_ZIP% -DestinationPath .\
 set OMNIORB_ROOT=%RTM_ROOT%/%OMNIORB_DIR%
 
 @rem OpenSSL download
@@ -61,10 +62,9 @@ set OPENSSL_ZIP=openssl-%SSL_VERSION%-win64-%SSL_VC_VERSION%.zip
 set OPENSSL_URL=%base_ssl_url%/%OPENSSL_ZIP%
 if not exist %OPENSSL_ZIP% (
   powershell wget -O %OPENSSL_ZIP% %OPENSSL_URL%
+  if exist OpenSSL rmdir /s/q OpenSSL
+  powershell Expand-Archive .\%OPENSSL_ZIP% -DestinationPath .\
 )
-if exist OpenSSL rmdir /s/q OpenSSL
-powershell Expand-Archive .\%OPENSSL_ZIP% -DestinationPath .\
-
 set SSL_ROOT=%RTM_ROOT%OpenSSL/build
 
 @rem set cmake parameter
@@ -76,6 +76,7 @@ set CMAKE_OPT=-DRTM_VC_VER=%VC_VERSION% ^
  -DCMAKE_INSTALL_PREFIX=%INSTALL_PREFIX% ^
  -DWINDOWS_MSM_BUILD=ON ^
  -DBOOST_ROOT=%BOOST_PATH% ^
+ -DBoost_USE_STATIC_LIBS=OFF ^
  -DHTTP_ENABLE=ON ^
  -DFLUENTBIT_ENABLE=ON ^
  -DFLUENTBIT_ROOT=%FLB_ROOT% ^
