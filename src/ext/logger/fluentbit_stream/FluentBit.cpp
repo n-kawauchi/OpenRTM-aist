@@ -56,16 +56,6 @@ namespace RTC
 
   bool FluentBitStream::init(const coil::Properties& prop)
   {
-    // Default lib-input setting
-    if(prop.findNode("input") == nullptr)
-    {
-      coil::Properties dprop;
-      dprop["plugin"] = std::string("lib");
-      dprop["conf.tag"] = std::string("rtclog");
-
-      createInputStream(dprop);
-    }
-
     const std::vector<coil::Properties*>& leaf(prop.getLeaf());
 
     for(auto & lprop : leaf)
@@ -119,13 +109,16 @@ namespace RTC
           {
             std::string key(lprop->getName()), value(lprop->getValue());
 
-            int ret = flb_output_property_check(s_flbContext,
-                                                flbout, &key[0], &value[0]);
-            if (ret == FLB_LIB_ERROR || ret == FLB_LIB_NO_CONFIG_MAP)
-              {
-                std::cerr << "Unknown property for \"" << plugin << "\" plugin: ";
-                std::cerr << key << ": " << value << std::endl;
-              }
+//オプション有効チェック
+//FluentBit v1.9では動作していたが v3.2では無効と判断されてしまう
+//コードはコメントアウトして残した
+//                int ret = flb_output_property_check(s_flbContext,
+//                                                flbout, &key[0], &value[0]);
+//            if (ret == FLB_LIB_ERROR || ret == FLB_LIB_NO_CONFIG_MAP)
+//              {
+//                std::cerr << "Unknown property for \"" << plugin << "\" plugin: ";
+//                std::cerr << key << ": " << value << std::endl;
+//              }
             flb_output_set(s_flbContext, flbout, key.c_str(), value.c_str(), NULL);
           }
       }
@@ -137,6 +130,11 @@ namespace RTC
     std::string plugin = prop["plugin"];
     FlbHandler flbin = flb_input(s_flbContext,
                                  (char*)plugin.c_str(), nullptr);
+    if (flbin < 0) {
+      plugin = "lib";
+      flbin = flb_input(s_flbContext,
+                                 (char*)plugin.c_str(), nullptr);
+    }
     m_flbIn.emplace_back(flbin);
     if(prop.findNode("conf") != nullptr)
       {
@@ -146,16 +144,23 @@ namespace RTC
           {
             std::string key(lprop->getName()), value(lprop->getValue());
 
-            int ret = flb_input_property_check(s_flbContext,
-                                              flbin, &key[0], &value[0]);
-            if (ret == FLB_LIB_ERROR || ret == FLB_LIB_NO_CONFIG_MAP)
-              {
-                std::cerr << "Unknown property for \"" << plugin << "\" plugin: ";
-                std::cerr << key << ": " << value << std::endl;
-              }
+//オプション有効チェック
+//FluentBit v1.9では動作していたが v3.2では無効と判断されてしまう
+//コードはコメントアウトして残した
+//            int ret = flb_input_property_check(s_flbContext,
+//                                              flbin, &key[0], &value[0]);
+//            if (ret == FLB_LIB_ERROR || ret == FLB_LIB_NO_CONFIG_MAP)
+//              {
+//                std::cerr << "Unknown property for \"" << plugin << "\" plugin: ";
+//                std::cerr << key << ": " << value << std::endl;
+//              }
             flb_input_set(s_flbContext, flbin, key.c_str(), value.c_str(), NULL);
           }
       }
+    else {
+      std::cout << "createInputStream : Default settings for input.conf : tag:rtclog" << std::endl;
+      flb_input_set(s_flbContext, flbin, "tag", "rtclog", NULL);
+    }
     return true;
   }
 
