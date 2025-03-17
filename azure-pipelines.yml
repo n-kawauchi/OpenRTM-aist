@@ -27,7 +27,7 @@ pr:
     - utils/
 
 variables:
-  omniorb: omniORB-4.3.2-x64-vc14-py38
+  omniorb: omniORB-4.3.2-x64-vc16-py312
   omniorbUrl: https://openrtm.org/pub/omniORB/win32/omniORB-4.3.2
   ros2: ros2-jazzy-20240705-windows-release-amd64
   ros2Url: https://github.com/ros2/ros2/releases/download/release-jazzy-20240705/
@@ -66,7 +66,7 @@ jobs:
           workingDirectory: 'build'
           cmakeArgs:
             -A x64
-            -DRTM_VC_VER=vc14
+            -DRTM_VC_VER=vc16
             -DCORBA=omniORB
             -DORB_ROOT=$(Pipeline.Workspace)\$(omniorb)
             -DOBSERVER_ENABLE=ON
@@ -107,7 +107,7 @@ jobs:
             -DCMAKE_CXX_COMPILER:FILEPATH="$(vcPath)\Tools\Llvm\bin\clang-cl.exe" ^
             -DCMAKE_LINKER:FILEPATH="$(vcPath)\Tools\Llvm\bin\lld-link.exe" ^
             -DCMAKE_BUILD_TYPE=Release ^
-            -DRTM_VC_VER=vc14 ^
+            -DRTM_VC_VER=vc16 ^
             -DCORBA=omniORB ^
             -DORB_ROOT=$(Pipeline.Workspace)\$(omniorb) ^
             -DOBSERVER_ENABLE=ON ^
