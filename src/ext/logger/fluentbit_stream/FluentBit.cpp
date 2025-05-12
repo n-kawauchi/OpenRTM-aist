@@ -15,6 +15,7 @@
  *
  */
 #include <algorithm>
+#include <sstream>
 
 #include <rtm/Manager.h>
 #include <rtm/LogstreamBase.h>
@@ -32,7 +33,6 @@ namespace RTC
   // FluentBitStream class
   FluentBitStream::FluentBitStream()
   {
-    for (char & i : m_buf) { i = '\0'; }
     if (s_flbContext == nullptr)
       {
         s_flbContext = flb_create();
@@ -164,24 +164,33 @@ namespace RTC
     return true;
   }
 
-  std::streamsize FluentBitStream::pushLogger(int level, const std::string &name, const std::string &date, const char* mes)
+  std::streamsize FluentBitStream::pushLogger(int level, const std::string &name, const std::string &date, const std::string &mes)
   {
-    char tmp[BUFFER_LEN];
     std::streamsize n(0);
     coil::Properties& conf = ::RTC::Manager::instance().getConfig();
     const std::string& pid = conf["manager.pid"];
     const std::string& host_name = conf["os.hostname"];
     const std::string& manager_name = conf["manager.instance_name"];
+    std::ostringstream oss;
+    
     for(auto & flb : m_flbIn)
       {
-#if defined (WIN32)
-        n = sprintf_s(tmp, sizeof(tmp) - 1,
-                     R"([%lld, {"time":"%s","name":"%s","level":"%s","pid":"%s","host":"%s","manager":"%s","message": "%s"}])", time(nullptr), date.c_str(), name.c_str(), Logger::getLevelString(level).c_str(), pid.c_str(), host_name.c_str(), manager_name.c_str(), mes);
-#else
-        n = snprintf(tmp, sizeof(tmp) - 1,
-                     R"([%ld, {"time":"%s","name":"%s","level":"%s","pid":"%s","host":"%s","manager":"%s","message": "%s"}])", time(nullptr), date.c_str(), name.c_str(), Logger::getLevelString(level).c_str(), pid.c_str(), host_name.c_str(), manager_name.c_str(), mes);
-#endif
-        flb_lib_push(s_flbContext, flb, tmp, n);
+        oss << "[";
+		    oss << std::time(nullptr);
+		    oss << ", {";
+		    oss << "\"time\":\"" << date << "\",";
+		    oss << "\"name\":\"" << name << "\",";
+		    oss << "\"level\":\"" << Logger::getLevelString(level) << "\",";
+		    oss << "\"pid\":\"" << pid << "\",";
+		    oss << "\"host\":\"" << host_name << "\",";
+		    oss << "\"manager\":\"" << manager_name << "\",";
+		    oss << "\"message\":\"" << mes << "\"";
+		    oss << "}]";
+		    
+		    std::string formatted = oss.str();
+		    n = formatted.size();
+
+        flb_lib_push(s_flbContext, flb, formatted.c_str(), n);
       }
     return n;
   }
@@ -189,24 +198,24 @@ namespace RTC
   void FluentBitStream::write(int level, const std::string &name, const std::string &date, const std::string &mes)
   {
     std::string message{coil::replaceString(mes, "\"", "\'")};
-    std::streamsize insize(message.size());
-    for (std::streamsize i(0); i < insize; ++i, ++m_pos)
-      {
-        m_buf[m_pos] = message[i];
-        if (message[i] == '\n' || message[i] == '\r' || m_pos == (BUFFER_LEN - 1))
-          {
-            m_buf[m_pos] = '\0';
-            pushLogger(level, name, date, m_buf);
-            m_pos = 0;
-          }
-        else if(i == insize-1)
-          {
-            m_buf[m_pos+1] = '\0';
-            pushLogger(level, name, date, m_buf);
-          }
-      }
-     m_pos = 0;
+    std::string line;
 
+	for (char c : message)
+    {
+      if (c == '\n' || c == '\r') {
+        if (!line.empty()) {
+            pushLogger(level, name, date, line);
+            line.clear();
+        }
+      } else {
+        line += c;
+      }
+    }
+
+    // 最後に残った行も送信
+    if (!line.empty()) {
+      pushLogger(level, name, date, line);
+    }
   }
   // end of FluentBitStream class
   //============================================================
