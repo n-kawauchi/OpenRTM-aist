@@ -441,11 +441,11 @@ update_source_list () {
       exit 0
     else
       echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm2.list > /dev/null
-      sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://openrtm.org/pub/openrtm.gpg -O /etc/apt/trusted.gpg.d/openrtm.gpg
+      sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://$reposerver/pub/openrtm.gpg -O /etc/apt/trusted.gpg.d/openrtm.gpg
     fi
   elif [ ! -e /etc/apt/trusted.gpg.d/openrtm.gpg ]; then
     echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm2.list > /dev/null
-    sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://openrtm.org/pub/openrtm.gpg -O /etc/apt/trusted.gpg.d/openrtm.gpg
+    sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://$reposerver/pub/openrtm.gpg -O /etc/apt/trusted.gpg.d/openrtm.gpg
   fi
   fluentsite=`apt-cache policy | grep "https://packages.fluentbit.io"`
   if test "x$fluentsite" = "x" &&
