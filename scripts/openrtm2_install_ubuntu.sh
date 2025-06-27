@@ -14,7 +14,7 @@
 # = OPT_UNINST   : uninstallation
 #
 
-VERSION=2.1.0.00
+VERSION=2.1.0.01
 FILENAME=openrtm2_install_ubuntu.sh
 
 #
@@ -419,7 +419,7 @@ create_srclist () {
     echo $msg3
     exit
   fi
-  openrtm_repo="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/openrtm.key] http://$reposerver/pub/Linux/ubuntu/ $code_name main"
+  openrtm_repo="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/openrtm-keyring.gpg] http://$reposerver/pub/Linux/ubuntu/ $code_name main"
   fluent_repo="deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/fluentbit-keyring.gpg] https://packages.fluentbit.io/ubuntu/$code_name $code_name main"
 }
 
@@ -444,11 +444,12 @@ update_source_list () {
       if [ ! -d /etc/apt/keyrings ]; then
         sudo mkdir -p /etc/apt/keyrings
       fi
-      sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://openrtm.org/pub/openrtm.key -O /etc/apt/keyrings/openrtm.key
+      sudo wget --secure-protocol=TLSv1_2 --no-check-certificate http://$reposerver/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
     fi
-  elif test "x$rtmsite2" != "x" &&
-       [ ! -e /etc/apt/keyrings/openrtm.key ]; then
-    sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://openrtm.org/pub/openrtm.key -O /etc/apt/keyrings/openrtm.key
+  elif [ ! -e /etc/apt/keyrings/openrtm-keyring.gpg ]; then
+    sudo rm /etc/apt/sources.list.d/openrtm.list
+    echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm.list > /dev/null
+    sudo wget --secure-protocol=TLSv1_2 --no-check-certificate http://$reposerver/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
   fi
   fluentsite=`apt-cache policy | grep "https://packages.fluentbit.io"`
   if test "x$fluentsite" = "x" &&
