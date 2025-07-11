@@ -377,7 +377,7 @@ update_source_list () {
     if test "x$rtmsite1" != "x" ; then
       sudo sed -i.bak '/http:\/\/openrtm.org\/pub\/Linux\/raspbian\//d' /etc/apt/sources.list
     fi
-    if test "x$rtmsite2" = "x" ; then
+    if test "x$rtmsite2" != "x" ; then
       sudo rm /etc/apt/sources.list.d/openrtm.list
     fi
     echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm.list > /dev/null
