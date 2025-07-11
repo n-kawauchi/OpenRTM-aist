@@ -381,6 +381,9 @@ update_source_list () {
       sudo rm /etc/apt/sources.list.d/openrtm.list
     fi
     echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm.list > /dev/null
+    if [ ! -d /etc/apt/keyrings ]; then
+      sudo mkdir -p /etc/apt/keyrings
+    fi
     sudo wget --secure-protocol=TLSv1_2 --no-check-certificate https://$reposerver/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
   fi
   
