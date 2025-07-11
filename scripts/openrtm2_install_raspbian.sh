@@ -375,7 +375,7 @@ update_source_list () {
     fi
   elif [ ! -e /etc/apt/keyrings/openrtm-keyring.gpg ]; then
     if test "x$rtmsite1" != "x" ; then
-      sed -i.bak '/http:\/\/openrtm.org\/pub\/Linux\/raspbian\//d' /etc/apt/sources.list
+      sudo sed -i.bak '/http:\/\/openrtm.org\/pub\/Linux\/raspbian\//d' /etc/apt/sources.list
     fi
     if test "x$rtmsite2" = "x" ; then
       sudo rm /etc/apt/sources.list.d/openrtm.list
