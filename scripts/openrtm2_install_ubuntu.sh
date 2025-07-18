@@ -14,7 +14,7 @@
 # = OPT_UNINST   : uninstallation
 #
 
-VERSION=2.1.0.01
+VERSION=2.1.0.02
 FILENAME=openrtm2_install_ubuntu.sh
 
 #
@@ -447,12 +447,24 @@ update_source_list () {
       sudo wget --secure-protocol=TLSv1_2 --no-check-certificate http://$reposerver/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
     fi
   elif [ ! -e /etc/apt/keyrings/openrtm-keyring.gpg ]; then
-    sudo rm /etc/apt/sources.list.d/openrtm.list
+    if test "x$rtmsite1" != "x" ; then
+      sudo sed -i '/http:\/\/openrtm.org\/pub\/Linux\/ubuntu\//d' /etc/apt/sources.list
+    fi
+    if test "x$rtmsite2" != "x" ; then
+      sudo rm /etc/apt/sources.list.d/openrtm.list
+    fi
     echo $openrtm_repo | sudo tee /etc/apt/sources.list.d/openrtm.list > /dev/null
     sudo wget --secure-protocol=TLSv1_2 --no-check-certificate http://$reposerver/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
   fi
-  fluentsite=`apt-cache policy | grep "https://packages.fluentbit.io"`
-  if test "x$fluentsite" = "x" &&
+  # If FluentBit's old public key is registered, delete it.
+  fingerprint=$(apt-key list | awk '$1 == "pub" {getline; gsub(" ", "", $0); fpr=$0}
+  /Fluentbit releases/ {print substr(fpr, length(fpr)-7)}')
+  if test "x$fingerprint" != "x" &&
+     test "x$OPT_COREDEVEL" = "xtrue" ; then
+    sudo apt-key del $fingerprint
+    sudo sed -i '/https:\/\/packages.fluentbit.io\/ubuntu\//d' /etc/apt/sources.list
+  fi
+  if [ ! -e /usr/share/keyrings/fluentbit-keyring.gpg ] &&
      test "x$OPT_COREDEVEL" = "xtrue" ; then
     echo $fluent_repo | sudo tee /etc/apt/sources.list.d/fluentbit.list > /dev/null
     wget -O - https://packages.fluentbit.io/fluentbit.key | gpg --dearmor | sudo tee /usr/share/keyrings/fluentbit-keyring.gpg >/dev/null
