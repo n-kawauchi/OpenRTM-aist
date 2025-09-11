@@ -77,7 +77,9 @@ else(WIN32)
 endif(WIN32)
 
 if(SSL_ENABLE)
-
+	if(BUILD_RTM_LINUX_PKGS)
+		set(CMAKE_INSTALL_PREFIX "/usr")
+	endif()
 	if(CORBA STREQUAL "omniORB")
 		set(PROTOCOLS tcp ssl)
 

@@ -65,6 +65,9 @@ endif(WIN32)
 
 
 set(INSTALL_SSLTRANSPORT_DIR ${INSTALL_RTM_EXT_DIR}/ssl)
+if(BUILD_RTM_LINUX_PKGS)
+	set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/rtc.ssl.conf.in ${PROJECT_BINARY_DIR}/rtc.ssl.conf @ONLY)
 install(
