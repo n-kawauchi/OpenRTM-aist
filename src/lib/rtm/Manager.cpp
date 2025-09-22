@@ -56,7 +56,6 @@
 #include <iostream>
 #include <utility>
 #include <iterator>
-#include <list>
 
 #if defined(minor)
 #undef minor
@@ -1615,42 +1614,6 @@ std::vector<coil::Properties> Manager::getLoadableModules()
     return opt;
   }
 
-  /*!
-   * @if jp
-   * @brief giopからはじまるORBエンドポイントでの指定した場合にtrue、
-   * それ以外(例えばホスト名:ポート番号の指定)の場合はfalseを返す。
-   *
-   *
-   * @param endpoint エンドポイント
-   *
-   * @return エンドポイントの指定方法
-   *
-   * @else
-   * @brief 
-   *
-   * @param endpoint 
-   *
-   * @return
-   *
-   * @endif
-   */
-  bool Manager::isORBEndPoint(const std::string& endpoint)
-  {
-    const std::list<std::string> headers{ "giop:", "iiop://",
-                                        "diop://", "uiop://",
-                                        "ssliop://", "shmiop://",
-                                        "htiop://", "inet:"};
-
-    for (const auto &header : headers)
-    {
-      if (endpoint.find(header) != std::string::npos)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
   void Manager::createORBEndpoints(coil::vstring& endpoints)
   {
     // corba.endpoint is obsolete
@@ -1676,22 +1639,15 @@ std::vector<coil::Properties> Manager::getLoadableModules()
     if (coil::toBool(m_config["manager.is_master"], "YES", "NO", false))
       {
         std::string mm(m_config.getProperty("corba.master_manager", ":2810"));
-        if(!isORBEndPoint(mm))
-        {
-          coil::vstring mmm(coil::split(mm, ":"));
-          if (mmm.size() == 2)
-            {
-              endpoints.emplace(endpoints.begin(), std::string(":") + mmm[1]);
-            }
-          else
-            {
-              endpoints.emplace(endpoints.begin(), ":2810");
-            }
-        }
+        coil::vstring mmm(coil::split(mm, ":"));
+        if (mmm.size() == 2)
+          {
+            endpoints.emplace(endpoints.begin(), std::string(":") + mmm[1]);
+          }
         else
-        {
-          endpoints.emplace(endpoints.begin(), mm);
-        }
+          {
+            endpoints.emplace(endpoints.begin(), ":2810");
+          }
       }
     endpoints = coil::unique_sv(std::move(endpoints));
   }
@@ -1724,37 +1680,16 @@ std::vector<coil::Properties> Manager::getLoadableModules()
               }
             else
               {
-                if(!isORBEndPoint(endpoint))
-                {
-                  opt += " -ORBendPoint giop:tcp:" + endpoint;
-                }
-                else
-                {
-                  opt += " -ORBendPoint " + endpoint;
-                }
+                opt += " -ORBendPoint giop:tcp:" + endpoint;
               }
           }
         else if (corba == "TAO")
           {
-            if(!isORBEndPoint(endpoint))
-            {
-              opt += " -ORBEndPoint iiop://" + endpoint;
-            }
-            else
-            {
-              opt += " -ORBEndPoint " + endpoint;
-            }
+            opt += " -ORBEndPoint iiop://" + endpoint;
           }
         else if (corba == "MICO")
           {
-            if(!isORBEndPoint(endpoint))
-            {
-              opt += "-ORBIIOPAddr inet:" + endpoint;
-            }
-            else
-            {
-              opt += "-ORBIIOPAddr " + endpoint;
-            }
+            opt += "-ORBIIOPAddr inet:" + endpoint;
           }
         else
           {
