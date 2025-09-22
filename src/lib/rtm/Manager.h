@@ -2123,7 +2123,7 @@ namespace RTC
      * @brief The argument of ORB_init
      * @endif
      */
-    int m_argvSize{0};
+    int m_argvSize;
 
     //------------------------------------------------------------
     // Manager's variable

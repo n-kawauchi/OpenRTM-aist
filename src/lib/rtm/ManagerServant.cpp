@@ -25,7 +25,6 @@
 #include <rtm/RTObject.h>
 #include <rtm/CORBA_SeqUtil.h>
 #include <rtm/CORBA_IORUtil.h>
-#include <rtm/CORBA_RTCUtil.h>
 
 #include <vector>
 #include <string>
@@ -1056,7 +1055,9 @@ namespace RTM
       {
         coil::Properties config(m_mgr.getConfig());
         // Why RtORB does not allow corbaloc:iiop: ?
-        std::string mgrloc(CORBA_RTCUtil::CorbaURI(host_port, config["manager.name"]).toString());
+        std::string mgrloc("corbaloc::");
+        mgrloc += host_port;
+        mgrloc += "/" + config["manager.name"];
 
         RTC_DEBUG(("corbaloc: %s", mgrloc.c_str()));
 

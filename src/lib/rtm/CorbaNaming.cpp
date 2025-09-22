@@ -19,7 +19,6 @@
 
 #include <cassert>
 #include <rtm/CorbaNaming.h>
-#include <rtm/CORBA_RTCUtil.h>
 #include <iostream>
 
 namespace RTC
@@ -51,7 +50,7 @@ namespace RTC
       m_blLength(100)
   {
     CORBA::Object_var obj;
-    m_nameServer = CORBA_RTCUtil::CorbaURI(m_nameServer, "NameService").toString();
+    m_nameServer = "corbaloc::" + m_nameServer + "/NameService";
     try
       {
         obj = m_ptrORB->string_to_object(m_nameServer.c_str());
@@ -76,7 +75,7 @@ namespace RTC
   void CorbaNaming::init(const char* name_server)
   {
     m_nameServer = name_server;
-    m_nameServer = CORBA_RTCUtil::CorbaURI(m_nameServer, "NameService").toString();
+    m_nameServer = "corbaloc::" + m_nameServer + "/NameService";
     CORBA::Object_var obj;
     obj = m_ptrORB->string_to_object(m_nameServer.c_str());
     m_rootContext = CosNaming::NamingContextExt::_narrow(obj);
