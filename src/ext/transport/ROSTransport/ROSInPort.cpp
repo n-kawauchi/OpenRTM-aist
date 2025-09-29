@@ -27,10 +27,15 @@
 #include <ros/network.h>
 #include <ros/poll_manager.h>
 #include <ros/connection_manager.h>
-#include <coil/OS.h>
-#include <coil/stringutil.h>
 #include "ROSInPort.h"
 #include "ROSTopicManager.h"
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#ifdef getpid
+#undef getpid
+#endif
+#endif
+#include <coil/OS.h>
+#include <coil/stringutil.h>
 
 
 #define ROS_MASTER_URI "ROS_MASTER_URI"
@@ -54,6 +59,7 @@ namespace RTC
      m_tcp_keepcnt(9),
      m_tcp_keepidle(60),
      m_tcp_keepintvl(10),
+
      m_roscoreport(ROS_DEFAULT_MASTER_PORT)
   {
     // PortProfile setting
@@ -144,8 +150,6 @@ namespace RTC
     m_messageType = prop.getProperty("marshaling_type", "ros:std_msgs/Float32");
     m_topic = prop.getProperty("ros.topic", "chatter");
     m_topic = "/" + m_topic;
-
-
 
     m_so_keepalive = coil::toBool(prop["ros.so_keepalive"], "YES", "NO", true);
     coil::stringTo<uint32_t>(m_tcp_keepcnt, prop["ros.tcp_keepcnt"].c_str());
