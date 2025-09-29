@@ -55,6 +55,11 @@ namespace RTC
   ROSInPort::ROSInPort(void)
    : m_buffer(nullptr),
      m_tcp_nodelay(true),
+     m_so_keepalive(true),
+     m_tcp_keepcnt(9),
+     m_tcp_keepidle(60),
+     m_tcp_keepintvl(10),
+
      m_roscoreport(ROS_DEFAULT_MASTER_PORT)
   {
     // PortProfile setting
@@ -146,7 +151,10 @@ namespace RTC
     m_topic = prop.getProperty("ros.topic", "chatter");
     m_topic = "/" + m_topic;
 
-
+    m_so_keepalive = coil::toBool(prop["ros.so_keepalive"], "YES", "NO", true);
+    coil::stringTo<uint32_t>(m_tcp_keepcnt, prop["ros.tcp_keepcnt"].c_str());
+    coil::stringTo<uint32_t>(m_tcp_keepidle, prop["ros.tcp_keepidle"].c_str());
+    coil::stringTo<uint32_t>(m_tcp_keepintvl, prop["ros.tcp_keepintvl"].c_str());
     m_tcp_nodelay = coil::toBool(prop["ros.tcp_nodelay"], "YES", "NO", true);
 
 
@@ -230,7 +238,7 @@ namespace RTC
     if(!info)
     {
       RTC_ERROR(("Can not find message type(%s)", m_messageType.c_str()));
-      throw;
+      throw std::bad_alloc();
     }
 
     request[0] = m_callerid;
@@ -246,7 +254,7 @@ namespace RTC
     if(!b)
     {
       RTC_ERROR(("XML-RCP Error"));
-      throw;
+      throw std::bad_alloc();
     }
     
 
@@ -381,10 +389,22 @@ namespace RTC
 
     ros::TransportTCPPtr transport(boost::make_shared<ros::TransportTCP>(&ros::PollManager::instance()->getPollSet()));
 
+
+    RTC_VERBOSE(("SO_KEEPALIVE:%s", (m_so_keepalive ? "true" : "false")));
+    RTC_VERBOSE(("TCP_KEEPCNT:%d", (m_tcp_keepcnt)));
+    RTC_VERBOSE(("TCP_KEEPIDLE:%d", (m_tcp_keepidle)));
+    RTC_VERBOSE(("TCP_KEEPINTVL:%d", (m_tcp_keepintvl)));
+    RTC_VERBOSE(("TCP_NODELAY:%s", (m_tcp_nodelay ? "true" : "false")));
+
+
     RTC_VERBOSE(("TCP Connect:%s:%d", dest_addr.c_str(), dest_port));
 
     if (transport->connect(dest_addr, dest_port))
     {
+
+      transport->setKeepAlive(m_so_keepalive, m_tcp_keepidle, m_tcp_keepintvl, m_tcp_keepcnt);
+      transport->setNoDelay(m_tcp_nodelay);
+
       ros::ConnectionPtr connection = ros::ConnectionPtr(boost::make_shared<ros::Connection>());
       connection->initialize(transport, false, ros::HeaderReceivedFunc());
       connection->setHeaderReceivedCallback(boost::bind(&ROSInPort::onHeaderReceived, this, _1, _2));
@@ -426,6 +446,7 @@ namespace RTC
       RTC_VERBOSE(("Message Definition:%s", info->message_definition().c_str()));
       RTC_VERBOSE(("Caller ID:%s", m_callerid.c_str()));
       RTC_VERBOSE(("Topic Name:%s", topic.c_str()));
+      RTC_VERBOSE(("TCP Nodelay:%s", (m_tcp_nodelay ? "true" : "false")));
       RTC_VERBOSE(("TCPTransPort created"));
 
       connection->writeHeader(header, boost::bind(&ROSInPort::onHeaderWritten, this, _1));
