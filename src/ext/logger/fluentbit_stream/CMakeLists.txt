@@ -1,5 +1,15 @@
 cmake_minimum_required (VERSION 3.16)
 
+# mpack の C++ オーバーロードを強制無効化
+add_compile_definitions(MPACK_NO_CPP=1)
+# 念のため、古い名称や別名も定義しておく
+add_compile_definitions(MPACK_CPLUSPLUS=0)
+
+# /permissive- を無効化（または /permissive を有効化）して、標準への厳格な準拠を緩和する
+if(MSVC)
+    add_compile_options(/permissive)
+endif()
+
 set(FLUENTBIT_ROOT ${FLUENTBIT_ROOT} CACHE PATH "set FLUENTBIT_ROOT")
 if(NOT FLUENTBIT_ROOT)
 	message(STATUS "FLUENTBIT_ROOT is empty.")
@@ -22,7 +32,7 @@ endif()
 
 project (FluentBit
 	VERSION ${RTM_VERSION}
-	LANGUAGES CXX)
+	LANGUAGES C CXX)
 
 link_directories(${ORB_LINK_DIR} ${FLB_LIBRARY_DIR})
 add_definitions(${ORB_C_FLAGS_LIST})
@@ -35,7 +45,7 @@ add_definitions(-Dtypeof=decltype)
 
 
 set(target FluentBit)
-set(srcs FluentBit.cpp FluentBit.h)
+set(srcs FluentBit.cpp FluentBit.h flb_api_wrapper.c flb_api_wrapper.h)
 
 if(VXWORKS AND NOT RTP)
 	set(libs ${RTCSKEL_PROJECT_NAME})
