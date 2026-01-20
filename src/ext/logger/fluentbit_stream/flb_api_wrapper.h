@@ -1,4 +1,4 @@
-#ifndef FLB_API_WRAPPER_H
+﻿#ifndef FLB_API_WRAPPER_H
 #define FLB_API_WRAPPER_H
 
 #ifdef __cplusplus

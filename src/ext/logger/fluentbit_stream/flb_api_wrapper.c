@@ -1,4 +1,4 @@
-#include <fluent-bit.h>
+﻿#include <fluent-bit.h>
 #include "flb_api_wrapper.h"
 
 // 実際のFluent Bit APIを呼び出すだけの仲介

@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16)
+﻿cmake_minimum_required (VERSION 3.16)
 
 # mpack の C++ オーバーロードを強制無効化
 add_compile_definitions(MPACK_NO_CPP=1)
@@ -63,6 +63,22 @@ else()
 	set(libs ${RTM_PROJECT_NAME} ${ORB_LIBRARIES} ${DATATYPE_FACTORIES})
 
 	add_library(${target} SHARED ${srcs})
+	if(MSVC)
+		# 発生している警告をすべて抑制リストに追加
+		# /wd4127: 条件式が定数 (mpack.h)
+		# /wd4819: 文字コード (ファイル保存形式)
+		# /wd4100: 未使用の引数 (ラッパー関数)
+		# /wd4245: 符号付き/符号なしの混在 (型の変換)
+		# /wd4189: ローカル変数の初期化後、参照なし
+		# /wd4200: サイズ 0 の配列 (非標準の拡張機能)
+		# /wd4201: 無名の構造体または共用体 (非標準の拡張機能)
+		# /wd4098: void関数が値を返す
+		target_compile_options(${target} PRIVATE /wd4127 /wd4819 /wd4100 /wd4245
+				 /wd4189 /wd4200 /wd4201 /wd4098)
+
+		# 念のため、このターゲットだけは警告があってもビルドを止めない設定を明示
+		set_target_properties(${target} PROPERTIES COMPILE_FLAGS "/WX-")
+	endif()
 	if(FLB_PROJECT)
 		add_dependencies(${target} ${FLB_PROJECT})
 	endif()
