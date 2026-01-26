@@ -27,6 +27,7 @@ extern "C" {
 #include "SSMTransport.h"
 #include "SSMOutPort.h"
 #include "SSMInPort.h"
+#include <iostream>
 
 namespace SSMRTM
 {
@@ -103,7 +104,8 @@ extern "C"
   {
     if(!initSSM())
     {
-      throw;
+      std::cerr << "[DEBUG] SSMTransportInit: initSSM failed" << std::endl;
+      return;
     }
 
     {

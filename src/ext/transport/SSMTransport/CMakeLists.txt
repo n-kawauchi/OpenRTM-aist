@@ -169,6 +169,9 @@ if(VXWORKS)
 	endif(RTP)
 endif(VXWORKS)
 
+if(BUILD_RTM_LINUX_PKGS)
+        set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
 set(INSTALL_SSMTRANSPORT_DIR ${INSTALL_RTM_EXT_DIR}/transport)
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/rtc.ssm.conf.in ${PROJECT_BINARY_DIR}/rtc.ssm.conf @ONLY)

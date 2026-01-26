@@ -205,7 +205,16 @@ namespace RTC
 
     void (*initfptr)(Manager *);
     *reinterpret_cast<void **>(&initfptr) = this->symbol(name, init_func);
-    (*initfptr)(&(Manager::instance()));
+    if (initfptr == nullptr)
+    {
+      RTC_ERROR(("symbol returned NULL.(name = %s, init_func = %s)",
+                     name.c_str(), init_func.c_str()));
+      throw SymbolNotFound(init_func);
+    }
+    else
+    {
+      (*initfptr)(&(Manager::instance()));
+    }
 
     return name;
   }
@@ -231,7 +240,16 @@ namespace RTC
 
     void(*initfptr)(Manager *);
     *reinterpret_cast<void **>(&initfptr) = this->symbol(name, init_func);
-    (*initfptr)(&(Manager::instance()));
+    if (initfptr == nullptr)
+    {
+      RTC_ERROR(("symbol returned NULL.(name = %s, init_func = %s)",
+                      name.c_str(), init_func.c_str()));
+      throw SymbolNotFound(init_func);
+    }
+    else
+    {
+      (*initfptr)(&(Manager::instance()));
+    }
 
     return name;
   }

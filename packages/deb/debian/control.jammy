@@ -36,6 +36,13 @@ Depends: openrtm2, ros-humble-ros-core
 Description: OpenRTM-aist extension ROS2 package
  Extensions of OpenRTM-aist
 
+Package: openrtm2-ssm-tp
+Architecture: any
+Multi-Arch: same
+Depends: openrtm2
+Description: OpenRTM-aist extension SSM package
+ Extensions of OpenRTM-aist
+
 Package: openrtm2-dev
 Architecture: any
 Multi-Arch: same
