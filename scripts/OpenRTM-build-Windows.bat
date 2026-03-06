@@ -11,8 +11,8 @@
 set CMAKE_GENERATOR="Visual Studio 16 2019"
 
 @rem Pythonはインストールしているがパスは通していない環境向け
-@rem C:\Python311へインストールしている場合の設定 
-set PY_VERSION=311
+@rem C:\Python312へインストールしている場合の設定 
+set PY_VERSION=312
 set path=C:\Python%PY_VERSION%;%PATH%
 
 @rem OpenRTM-aistのインストール先指定
@@ -23,7 +23,7 @@ set BOOST_PATH=C:\Boost
 set Boost_DIR=C:\Boost\lib\cmake\Boost-1.87.0
 
 @rem FluentBitのインストール先
-@rem OpenRTM v2.1.0では、FluentBit v3.10.0 でビルド確認している
+@rem OpenRTM v2.1.0では、FluentBit v4.2.2 でビルド確認している
 set FLB_ROOT=C:\localFLB
 @rem ======================================================== 
 
@@ -31,7 +31,7 @@ set FLB_ROOT=C:\localFLB
 @rem OpenSSLはOpenRTM向けにビルド済みバイナリをダウンロードするため
 @rem 下記バージョンの指定が必須
 set VC_VERSION=vc16
-set OMNI_VERSION=4.3.2
+set OMNI_VERSION=4.3.4
 set SSL_VC_VERSION=vc14
 set SSL_VERSION=3.0.1
 
