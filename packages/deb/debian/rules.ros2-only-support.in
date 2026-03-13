@@ -112,8 +112,6 @@ install-arch:
 	(cp $(INSTALL_PREFIX)/${RTM_LIB_DIR}/*.a $(TARGET)/${RTM_LIB_DIR})
 	(rm $(TARGET)/${RTM_LIB_DIR}/libhrtm*)
 	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR} $(TARGET)/${RTM_LIB_DIR})
-	(rm -r $(TARGET)/${RTM_EXT_DIR}/cmake)
-	(rm -r $(TARGET)/${RTM_EXT_DIR}/py_helper)
 	(rm -r $(TARGET)/${RTM_EXT_DIR}/transport)
 	(cp -r $(INSTALL_PREFIX)/${RTM_LIB_DIR}/pkgconfig $(TARGET)/${RTM_LIB_DIR})
 	(mkdir -p $(TARGET)/share/openrtm-$(SHORT_VER))
@@ -135,9 +133,10 @@ install-arch:
 	(cp $(INSTALL_PREFIX)/bin/rtm2-skelwrapper $(TARGET_dev)/bin)
 	(cp -r $(INSTALL_PREFIX)/include $(TARGET_dev))
 	(rm -r $(TARGET_dev)/include/openrtm-$(SHORT_VER)/hrtm)
-	(mkdir -p $(TARGET_dev)/${RTM_EXT_DIR})
-	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR}/cmake $(TARGET_dev)/${RTM_EXT_DIR})
-	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR}/py_helper $(TARGET_dev)/${RTM_EXT_DIR})
+	(mkdir -p $(TARGET_dev)/${RTM_LIB_DIR})
+	(cp -r $(INSTALL_PREFIX)/${RTM_LIB_DIR}/cmake $(TARGET_dev)/${RTM_LIB_DIR})
+	(mkdir -p $(TARGET_dev)/share/openrtm-$(SHORT_VER))
+	(cp -r $(INSTALL_PREFIX)/share/openrtm-$(SHORT_VER)/py_helper $(TARGET_dev)/share/openrtm-$(SHORT_VER))
 
 	# for openrtm2-idl package
 	(mkdir -p $(TARGET_idl)/include/openrtm-$(SHORT_VER)/rtm/idl)
