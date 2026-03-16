@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 
 project (ROS2Transport
 	VERSION ${RTM_VERSION}
@@ -77,7 +77,7 @@ if(VXWORKS AND NOT RTP)
 				COMPONENT ext)
 else()
 	set(libs ${RTM_PROJECT_NAME} ${ORB_LIBRARIES} ${DATATYPE_FACTORIES} FastRTPSTransport 
-		${rclcpp_LIBRARIES} ${std_msgs_LIBRARIES} ${geometry_msgs_LIBRARIES} ${sensor_msgs_LIBRARIES} 
+		${rclcpp_LIBRARIES}  
 		${std_msgs_LIBRARIES__rosidl_typesupport_fastrtps_cpp} 
 		${geometry_msgs_LIBRARIES__rosidl_typesupport_fastrtps_cpp} 
 		${sensor_msgs_LIBRARIES__rosidl_typesupport_fastrtps_cpp}
@@ -118,6 +118,9 @@ else()
 				COMPONENT ext)
 endif()
 
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/install_manifest.txt.in ${PROJECT_BINARY_DIR}/install_manifest.txt @ONLY)
+
 install(FILES ROS2MessageInfo.h ROS2Serializer.h DESTINATION ${INSTALL_ROS2TRANSPORT_INCLUDE_DIR}/ROS2Transport COMPONENT ext)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ROS2TransportConfig.cmake.in ${PROJECT_BINARY_DIR}/ROS2TransportConfig.cmake @ONLY)
 if(UNIX)
@@ -138,6 +141,34 @@ endif(VXWORKS)
 
 
 
+set(INSTALL_ROS2TRANSPORT_DIR ${INSTALL_RTM_EXT_DIR}/transport)
+set(INSTALL_SAMPLEQOSPROFILE_DIR ${INSTALL_RTM_ETC_DIR}/transport)
+
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/rtc.ros2.conf.in ${PROJECT_BINARY_DIR}/rtc.ros2.conf @ONLY)
+install(
+	FILES ${PROJECT_BINARY_DIR}/rtc.ros2.conf
+	DESTINATION ${INSTALL_RTM_ETC_DIR}/transport
+	COMPONENT ext)
+
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/FastRTPsQoSExample.xml
+	DESTINATION ${INSTALL_SAMPLEQOSPROFILE_DIR}
+	COMPONENT ext)
 
 
 
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/rtc.ros2.ssl.conf.in ${PROJECT_BINARY_DIR}/rtc.ros2.ssl.conf @ONLY)
+install(
+	FILES ${PROJECT_BINARY_DIR}/rtc.ros2.ssl.conf
+	DESTINATION ${INSTALL_RTM_ETC_DIR}/transport
+	COMPONENT ext)
+
+install(
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/mainexamplecacert.pem
+	${CMAKE_CURRENT_SOURCE_DIR}/appexamplekey.pem
+	${CMAKE_CURRENT_SOURCE_DIR}/appexamplecert.pem
+	DESTINATION ${INSTALL_SAMPLEQOSPROFILE_DIR}
+	COMPONENT ext)
