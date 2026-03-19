@@ -123,14 +123,22 @@ namespace CORBA_Util
     static const char* id()
     {
       CORBA::Any any_var;
+#ifdef ORB_IS_TAO
+      T tmp_var = T();
+#else
       T tmp_var;
+#endif
       any_var <<= tmp_var;
       return any_var.type()->id();
     }
     static const char* name()
     {
       CORBA::Any any_var;
+#ifdef ORB_IS_TAO
+      T tmp_var = T();
+#else
       T tmp_var;
+#endif
       any_var <<= tmp_var;
       return any_var.type()->name();
     }

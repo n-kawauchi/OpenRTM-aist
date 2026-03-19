@@ -811,12 +811,18 @@ function(openrtm_common_set_compile_options target)
 	)
 endfunction()
 
+if(CORBA STREQUAL "TAO")
+	set(CXX_STANDARD 17)
+else()
+	set(CXX_STANDARD 11)
+endif()
+
 function(openrtm_common_set_compile_props target)
 	openrtm_common_set_compile_definitions(${target})
 	openrtm_common_set_compile_options(${target})
 	set_target_properties(${target} PROPERTIES
 		POSITION_INDEPENDENT_CODE ON
-		CXX_STANDARD 11
+		CXX_STANDARD ${CXX_STANDARD}
 		CXX_EXTENSIONS OFF
 		CXX_STANDARD_REQUIRED ON
 	)
@@ -842,7 +848,7 @@ function(openrtm_gencode_set_compile_props target)
 	openrtm_gencode_set_compile_options(${target})
 	set_target_properties(${target} PROPERTIES
 		POSITION_INDEPENDENT_CODE ON
-		CXX_STANDARD 11
+		CXX_STANDARD ${CXX_STANDARD}
 		CXX_EXTENSIONS OFF
 		CXX_STANDARD_REQUIRED ON
 	)
