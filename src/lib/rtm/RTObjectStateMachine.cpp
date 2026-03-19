@@ -26,7 +26,8 @@ namespace RTC_impl
 {
   RTObjectStateMachine::RTObjectStateMachine(RTC::ExecutionContextHandle_t id,
                                              RTC::LightweightRTObject_ptr comp)
-    : m_id(id),
+    : rtclog("RTObjectStateMachine"),
+      m_id(id),
       m_rtobj(RTC::LightweightRTObject::_duplicate(comp)),
       m_sm(NUM_OF_LIFECYCLESTATE),
       m_ca(false), m_dfc(false), m_fsm(false), m_mode(false),
