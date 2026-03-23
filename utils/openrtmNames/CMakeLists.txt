@@ -1,5 +1,11 @@
-cmake_minimum_required (VERSION 3.5.1)
+cmake_minimum_required (VERSION 3.16)
+
+if(POLICY CMP0144)
+  cmake_policy(SET CMP0144 NEW)
+endif()
+
 set(target openrtmNames)
+set(targetDLL OpenrtmNamesPlugin)
 project (${target}
 	VERSION ${RTM_VERSION}
 	LANGUAGES CXX)
@@ -15,13 +21,34 @@ if(WIN32)
 	add_definitions(-DRTM_SKEL_IMPORT_SYMBOL)
 endif()
 
-add_executable(${target} openrtmNames.cpp NamingContext.h NamingContext.cpp
-				BindingIterator.h BindingIterator.cpp ObjectBinding.h ObjectBinding.cpp
-				RTObjectBinding.h RTObjectBinding.cpp ManagerBinding.h ManagerBinding.cpp)
+set(OPENRTMNAMES_FILES NamingContext.h NamingContext.cpp
+		BindingIterator.h BindingIterator.cpp ObjectBinding.h ObjectBinding.cpp
+		RTObjectBinding.h RTObjectBinding.cpp ManagerBinding.h ManagerBinding.cpp)
 
+add_library(${target}_objlib OBJECT ${OPENRTMNAMES_FILES})
+openrtm_common_set_compile_props(${target}_objlib)
+openrtm_set_link_props_shared(${target}_objlib)
+openrtm_include_rtm(${target}_objlib)
+
+add_executable(${target} openrtmNames.cpp $<TARGET_OBJECTS:${target}_objlib>)
 openrtm_common_set_compile_props(${target})
 openrtm_set_link_props_shared(${target})
 openrtm_include_rtm(${target})
+
+add_library(${targetDLL} SHARED OpenrtmNamesPlugin.cpp OpenrtmNamesPlugin.h $<TARGET_OBJECTS:${target}_objlib>)
+set_target_properties(${targetDLL} PROPERTIES PREFIX "")
+openrtm_common_set_compile_props(${targetDLL})
+openrtm_set_link_props_shared(${targetDLL})
+openrtm_include_rtm(${targetDLL})
+
+if(NOT WIN32)
+	add_library(${targetDLL}-static STATIC OpenrtmNamesPlugin.cpp OpenrtmNamesPlugin.h $<TARGET_OBJECTS:${target}_objlib>)
+	set_target_properties(${targetDLL}-static PROPERTIES OUTPUT_NAME ${targetDLL} CLEAN_DIRECT_OUTPUT 1)
+	openrtm_common_set_compile_props(${targetDLL}-static)
+	openrtm_set_link_props_shared(${targetDLL}-static)
+	openrtm_include_rtm(${targetDLL}-static)
+endif()
+
 
 set(libs ${RTM_PROJECT_NAME} ${ORB_LIBRARIES} ${DATATYPE_FACTORIES})
 if(CORBA STREQUAL "TAO")
@@ -54,6 +81,8 @@ endif(SSL_ENABLE)
 
 target_link_libraries(${target} ${libs} ${RTM_LINKER_OPTION})
 
+target_link_libraries(${targetDLL} ${libs} ${RTM_LINKER_OPTION})
+
 
 
 if(VXWORKS)
@@ -69,27 +98,62 @@ if(WIN32)
 			ARCHIVE DESTINATION ${INSTALL_RTM_LIB_DIR}
 			RUNTIME DESTINATION ${INSTALL_RTM_LIB_DIR}
 			COMPONENT utils)
+	install(TARGETS ${targetDLL} LIBRARY DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			ARCHIVE DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			RUNTIME DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			COMPONENT utils)
 else(WIN32)
 	install(TARGETS ${target} LIBRARY DESTINATION ${INSTALL_RTM_LIB_DIR}
 			ARCHIVE DESTINATION ${INSTALL_RTM_LIB_DIR}
 			RUNTIME DESTINATION ${INSTALL_RTM_BIN_DIR}
 			COMPONENT utils)
+
+	install(TARGETS ${targetDLL} LIBRARY DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			ARCHIVE DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			RUNTIME DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			COMPONENT utils)
+
+	install(TARGETS ${targetDLL}-static LIBRARY DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			ARCHIVE DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			RUNTIME DESTINATION ${INSTALL_RTM_EXT_DIR}/naming
+			COMPONENT utils)
+	install(FILES  OpenrtmNamesPlugin.h DESTINATION ${INSTALL_RTM_EXT_DIR}/naming COMPONENT headers)
 endif(WIN32)
 
 if(SSL_ENABLE)
-	set(PROTOCOLS ssl)
-
-	if(HTTP_ENABLE)
-		set(PROTOCOLS ${PROTOCOLS} http https ws wss)
+	if(BUILD_RTM_LINUX_PKGS)
+		set(CMAKE_INSTALL_PREFIX "/usr")
 	endif()
+	if(CORBA STREQUAL "omniORB")
+		set(PROTOCOLS tcp ssl)
 
-	foreach(PROTOCOL ${PROTOCOLS})
-		configure_file(
-			${CMAKE_CURRENT_SOURCE_DIR}/rtc.names.${PROTOCOL}.conf.in ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf @ONLY)
-		install(
-			FILES ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf
-			DESTINATION ${INSTALL_RTM_ETC_DIR}
-			COMPONENT utils)
-	endforeach()
+		if(HTTP_ENABLE)
+			set(PROTOCOLS ${PROTOCOLS} http https ws wss)
+		endif()
+
+		foreach(PROTOCOL ${PROTOCOLS})
+			configure_file(
+				${CMAKE_CURRENT_SOURCE_DIR}/rtc.names.${PROTOCOL}.omniorb.conf.in ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf @ONLY)
+			install(
+				FILES ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf
+				DESTINATION ${INSTALL_RTM_ETC_DIR}
+				COMPONENT utils)
+		endforeach()
+	elseif(CORBA STREQUAL "TAO")
+		set(PROTOCOLS tcp http shm)
+
+		if(SSL_ENABLE)
+			set(PROTOCOLS ${PROTOCOLS} ssl)
+		endif()
+
+		foreach(PROTOCOL ${PROTOCOLS})
+			configure_file(
+				${CMAKE_CURRENT_SOURCE_DIR}/rtc.names.${PROTOCOL}.tao.conf.in ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf @ONLY)
+			install(
+				FILES ${PROJECT_BINARY_DIR}/rtc.names.${PROTOCOL}.conf
+				DESTINATION ${INSTALL_RTM_ETC_DIR}
+				COMPONENT utils)
+		endforeach()
+	endif()
 endif()
 
