@@ -120,6 +120,7 @@ endif()
 
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/install_manifest.txt.in ${PROJECT_BINARY_DIR}/install_manifest.txt @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/install_manifest.txt.in ${CMAKE_BINARY_DIR}/install_manifest.txt @ONLY)
 
 install(FILES ROS2MessageInfo.h ROS2Serializer.h DESTINATION ${INSTALL_ROS2TRANSPORT_INCLUDE_DIR}/ROS2Transport COMPONENT ext)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ROS2TransportConfig.cmake.in ${PROJECT_BINARY_DIR}/ROS2TransportConfig.cmake @ONLY)
