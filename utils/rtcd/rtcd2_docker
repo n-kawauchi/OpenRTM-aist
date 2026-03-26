@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# @file rtcprof2_docker
+# @brief Docker container profile information extract command for OpenRTM
+# @author (c) Noriaki Ando <n-ando@aist.go.jp>
+#
+# arg: /usr/bin/rtcd2_docker -o manager.modules.load_path:./ -o manager.modules.docker.load_paths:/usr/share/openrtm-2.0/containers -o manager.is_master:NO -o manager.corba_servant:YES -o corba.master_manager:localhost:2810 -o manager.name:manager -o manager.instance_name:manager_%p -o manager.shutdown_auto:NO -o module_name:RTC:AIST:example:ConsoleIn:docker:1.0.0
+#
+
+for arg in $@; do
+    tmp=`echo $arg | grep module_name`
+    if test "x" != "x$tmp"; then
+        module_name=`echo $tmp | sed -e 's/module_name\://'`
+    fi
+    tmp=`echo $arg | grep module_option`
+    if test "x" != "x$tmp"; then
+        module_option=`echo $tmp | sed -e 's/module_option\://'`
+    fi
+    tmp=`echo $arg | grep module_build`
+    if test "x" != "x$tmp"; then
+        module_build=`echo $tmp | sed -e 's/module_build\://'`
+    fi
+    tmp=`echo $arg | grep manager.modules.docker.load_paths`
+    if test "x" != "x$tmp"; then
+        load_path=`echo $tmp | sed -e 's/manager\.modules\.docker\.load_paths\://'`
+    fi
+done
+
+if [ -z ${module_name} ]; then
+    exit 0
+fi
+
+
+
+module_param=${module_name//:/ }
+module_param=($module_param)
+
+module_vendor=${module_param[1]}
+module_category=${module_param[2]}
+module_implementation_id=${module_param[3]}
+module_language=${module_param[4]}
+module_version=${module_param[5]}
+
+
+if [ -z ${module_implementation_id} ]; then
+    module_implementation_id=$module_name
+fi
+
+if [ -z ${module_language} ]; then
+    module_language="docker"
+fi
+
+#echo $module_name
+#echo $load_path
+
+dockerfiles=`find $load_path -name '*.docker'`
+
+for f in $dockerfiles; do
+    eval `rtcprof2_docker $f | sed -e 's/\(.*\)\: \(.*\)/\1="\2"/'`
+    this_module_name="RTC:${vendor}:${category}:${implementation_id}:docker:${version}"
+    if [ -z ${module_vendor} ]; then
+        module_vendor=$vendor
+    fi
+    if [ -z ${module_category} ]; then
+        module_category=$category
+    fi
+    if [ -z ${module_version} ]; then
+        module_version=$version
+    fi
+    module_name="RTC:${module_vendor}:${module_category}:${module_implementation_id}:${module_language}:${module_version}"
+    if test "x$module_name" = "x$this_module_name" ; then
+#        echo "$module_name is created by $f"
+        docker_file=$f
+        break
+    fi 
+done
+
+if test "xNO" != "x$module_build"; then
+    docker build -t "${implementation_id,,}" -f $docker_file .
+fi
+docker run --network host ${module_option} -it --rm "${implementation_id,,}" start${implementation_id} $@
+

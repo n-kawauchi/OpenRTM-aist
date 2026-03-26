@@ -1,0 +1,31 @@
+FROM ubuntu:20.04
+
+LABEL maintainer="Noriaki Ando <n-ando@aist.go.jp>"
+LABEL implementation_id="ConsoleIn"
+LABEL type_name="DataFlow"
+LABEL description="Input int value from console"
+LABEL version="1.0.0"
+LABEL vendor="AIST"
+LABEL category="example"
+LABEL activity_type="PERIODIC"
+LABEL kind="container"
+LABEL max_instance="1"
+LABEL language="docker"
+LABEL lang_type="container"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# initial apt update and installing wget, sudo
+RUN apt-get update && apt-get install -y wget sudo net-tools
+
+# additional apt repository and key installation
+RUN mkdir -p /etc/apt/keyrings
+RUN wget --secure-protocol=TLSv1_2 --no-check-certificate http://openrtm.org/pub/openrtm-keyring.gpg -O /etc/apt/keyrings/openrtm-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/openrtm-keyring.gpg] http://openrtm.org/pub/Linux/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/openrtm.list > /dev/null
+
+# installing openrtm2 packages
+RUN apt-get update
+RUN apt-get install openrtm2 -y
+RUN apt-get install openrtm2-example -y
+
+CMD ["/usr/share/openrtm-2.0/components/c++/examples/ConsoleInComp"]
