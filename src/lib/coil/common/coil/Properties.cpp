@@ -367,7 +367,7 @@ namespace coil
 
     while (!inStream.eof())
       {
-        std::string tmp{coil::eraseBothEndsBlank(coil::getlinePortable(inStream))};
+        std::string tmp{coil::eraseHeadBlank(coil::getlinePortable(inStream))};
 
         // Skip comments or empty lines
         if (tmp.empty())
@@ -394,6 +394,15 @@ namespace coil
           {
             continue;
           }
+
+        size_t end = tmp.find_last_not_of(" \t");
+        if (end != std::string::npos &&
+            tmp[end] == '\\' &&
+            !coil::isEscaped(tmp, end))
+        {
+            std::cerr << "Warning: Trailing whitespace after '\\' prevents line continuation: " << tmp << std::endl;
+        }
+
 
         std::string key, invalue;
         splitKeyValue(pline, key, invalue);
