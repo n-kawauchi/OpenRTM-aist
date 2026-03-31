@@ -168,6 +168,10 @@ namespace coil
    */
   const std::string& Properties::getProperty(const std::string& key) const
   {
+    if (coil::eraseBothEndsBlank(key).empty())
+      {
+        return m_empty;
+      }
     std::vector<std::string> keys;
     split(key, '.', keys);
     Properties* node(nullptr);
@@ -188,6 +192,10 @@ namespace coil
   const std::string& Properties::getProperty(const std::string& key,
                                              const std::string& def) const
   {
+    if (coil::eraseBothEndsBlank(key).empty())
+      {
+        return m_empty;
+      }
     const std::string& invalue((*this)[key]);
 
     return invalue.empty() ? def : invalue;
@@ -230,6 +238,12 @@ namespace coil
   const std::string& Properties::getDefault(const std::string& key) const
   {
     std::vector<std::string> keys;
+    
+    if (coil::eraseBothEndsBlank(key).empty())
+      {
+        return m_empty;
+      }
+
     split(key, '.', keys);
     Properties* node(nullptr);
     if ((node = _getNode(keys, 0, this)) != nullptr)
@@ -250,6 +264,12 @@ namespace coil
                                       const std::string& invalue)
   {
     std::vector<std::string> keys;
+
+    if (coil::eraseBothEndsBlank(key).empty())
+      {
+        return m_empty;
+      }
+
     split(key, '.', keys);
 
     Properties* curr(this);
@@ -280,6 +300,10 @@ namespace coil
   std::string Properties::setDefault(const std::string& key,
                                      const std::string& invalue)
   {
+    if (coil::eraseBothEndsBlank(key).empty())
+      {
+        return m_empty;
+      }
     std::vector<std::string> keys;
     split(key, '.', keys);
 
@@ -371,6 +395,15 @@ namespace coil
             continue;
           }
 
+        size_t end = tmp.find_last_not_of(" \t");
+        if (end != std::string::npos &&
+            tmp[end] == '\\' &&
+            !coil::isEscaped(tmp, end))
+        {
+            std::cerr << "Warning: Trailing whitespace after '\\' prevents line continuation: " << tmp << std::endl;
+        }
+
+
         std::string key, invalue;
         splitKeyValue(pline, key, invalue);
         setProperty(eraseBothEndsBlank(coil::unescape(std::move(key))),
@@ -446,7 +479,7 @@ namespace coil
    */
   Properties* Properties::findNode(const std::string& key) const
   {
-    if (key.empty())
+    if (coil::eraseBothEndsBlank(key).empty())
       {
         return nullptr;
       }
@@ -464,7 +497,7 @@ namespace coil
    */
   Properties& Properties::getNode(const std::string& key)
   {
-    if (key.empty())
+    if (coil::eraseBothEndsBlank(key).empty())
       {
         return *this;
       }
@@ -486,7 +519,7 @@ namespace coil
    */
   bool Properties::createNode(const std::string& key)
   {
-    if (key.empty())
+    if (coil::eraseBothEndsBlank(key).empty())
       {
         return false;
       }
@@ -532,6 +565,10 @@ namespace coil
    */
   Properties* Properties::hasKey(const char* key) const
   {
+    if (coil::eraseBothEndsBlank(key).empty())
+    {
+      return nullptr;
+    }
     for (auto prop : leaf)
       {
         if (prop->name == key)
