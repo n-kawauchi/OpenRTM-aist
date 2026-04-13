@@ -414,6 +414,11 @@ namespace RTM
     // create to slave components.
     if (m_isMaster)
       {
+        std::string lang_create_flag("manager.modules.");
+        lang_create_flag += comp_param.language() + ".create_comp";
+
+        bool create_comp = coil::toBool(m_mgr.getConfig()[lang_create_flag], "YES", "NO", true);
+        if(create_comp)
           {
             std::lock_guard<std::mutex> guard(m_slaveMutex);
             for (CORBA::ULong i(0); i < m_slaves.length(); ++i)
@@ -1199,6 +1204,16 @@ namespace RTM
     if (lang.empty()) { lang = "C++"; }
     RTC_INFO(("Specified manager's language: %s", lang.c_str()));
 
+    coil::Properties& prop = m_mgr.getConfig();
+    std::string lang_create_flag("manager.modules.");
+    lang_create_flag += lang + ".create_comp";
+    bool create_comp = coil::toBool(prop[lang_create_flag], "YES", "NO", true);
+    std::string lang_build_flag("manager.modules.");
+    lang_build_flag += lang + ".build_comp";
+    bool build_comp = coil::toBool(prop[lang_build_flag], "YES", "NO", true);
+
+
+
     RTM::Manager_var mgrobj = findManagerByName(mgrstr);
     if (CORBA::is_nil(mgrobj))
       {
@@ -1207,7 +1222,7 @@ namespace RTM
 
         std::string rtcd_cmd_key("manager.modules.");
         rtcd_cmd_key += lang + ".manager_cmd";
-        coil::Properties& prop = m_mgr.getConfig();
+        
         std::string rtcd_cmd = prop[rtcd_cmd_key];
 
         if (rtcd_cmd.empty())
@@ -1226,8 +1241,24 @@ namespace RTM
           {
             rtcd_cmd += " -f \"" + coil::escape(prop["config_file"]) + "\"";
           }
-
-        rtcd_cmd += " -o \"manager.modules.load_path:" + coil::escape(prop["manager.modules.load_path"]) + "\"";
+        if(create_comp)
+          {
+            rtcd_cmd += " -o \"manager.modules.load_path:" + coil::escape(prop["manager.modules.load_path"]) + "\"";
+          }
+        else
+          {
+            //std::string component_key("manager.modules.");
+            //component_key += lang + ".component.name";
+            //rtcd_cmd += " -o \"" + component_key + ":" + comp_param.impl_id() + "\"";
+            
+            coil::vstring tmp = coil::split (create_arg, "?");
+            rtcd_cmd += " -o \"module_name:" +  tmp[0] + "\"";
+            rtcd_cmd += " -o \"module_option:" +  param["module.options"] + "\"";
+            if(!build_comp)
+            {
+              rtcd_cmd += " -o \"module_build:NO\"";
+            }
+          }
         rtcd_cmd += " -o \"" + lang_path_key + ":" + coil::escape(prop[lang_path_key]) + "\"";
         
         rtcd_cmd += " -o \"manager.is_master:NO\"";
@@ -1235,8 +1266,10 @@ namespace RTM
         rtcd_cmd += " -o \"corba.master_manager:" + prop["corba.master_manager"] + "\"";
         rtcd_cmd += " -o \"manager.name:" + prop["manager.name"] + "\"";
         rtcd_cmd += " -o \"manager.instance_name:" + mgrstr + "\"";
-        rtcd_cmd += " -o \"manager.shutdown_auto:NO\"";
-
+        if(create_comp)
+          {
+            rtcd_cmd += " -o \"manager.shutdown_auto:NO\"";
+          }
 
         coil::vstring slaves_names;
         if (mgrstr == "manager_%p")
@@ -1321,7 +1354,44 @@ namespace RTM
     create_arg = create_arg_str;
     try
       {
-        return mgrobj->create_component(create_arg_str.c_str());
+        if(create_comp)
+          {
+            return mgrobj->create_component(create_arg_str.c_str());
+          }
+        else
+          {
+            for (size_t i(0); i < 1000; ++i) // Timeout: 1000 x 10ms
+              {
+               RTC::ComponentProfileList_var profs = mgrobj->get_component_profiles();
+               CORBA::ULong profs_len = profs->length();
+               for(CORBA::ULong p=0;p < profs_len;p++)
+                 {
+                   if(comp_param.impl_id() == std::string(profs[p].type_name))
+                     {
+                       std::string instance_name(profs[p].instance_name);
+                       try
+                         {
+                           RTC::RTCList_var rtc_list = mgrobj->get_components_by_name(instance_name.c_str());
+                           if(rtc_list->length() > 0)
+                             {
+                               return RTC::RTObject::_duplicate(rtc_list[0]);  
+                             }
+                         }
+                       catch (CORBA::SystemException&)
+                         {
+                           RTC_ERROR(("Exception was caught while creating component."));
+                         }
+                       catch (...)
+                         {
+                           RTC_ERROR(("Unknown non-CORBA exception cought."));
+                         }
+                     }
+                 }
+              std::this_thread::sleep_for(std::chrono::milliseconds(10));
+              }
+          }
+          RTC_ERROR(("Component creatiion failed."));
+          return RTC::RTObject::_nil();
       }
     catch (CORBA::SystemException&)
       {
@@ -1377,6 +1447,12 @@ namespace RTM
     // find manager
     RTM::Manager_var mgrobj = findManager(mgrstr);
 
+    coil::Properties& prop = m_mgr.getConfig();
+    std::string lang_create_flag("manager.modules.");
+    lang_create_flag += lang + ".create_comp";
+    bool create_comp = coil::toBool(prop[lang_create_flag], "YES", "NO", true);
+
+
     if (CORBA::is_nil(mgrobj))
       {
         RTC_INFO(("Manager: %s not found.", mgrstr.c_str()));
@@ -1384,7 +1460,7 @@ namespace RTM
 
         std::string rtcd_cmd_key("manager.modules.");
         rtcd_cmd_key += lang + "manager_cmd";
-        coil::Properties& prop = m_mgr.getConfig();
+        
         std::string rtcd_cmd = prop[rtcd_cmd_key];
 
         if (rtcd_cmd.empty())
@@ -1438,7 +1514,40 @@ namespace RTM
         create_arg = create_arg_str;
         try
           {
-            return mgrobj->create_component(create_arg_str.c_str());
+            if(create_comp)
+              {
+                return mgrobj->create_component(create_arg_str.c_str());
+              }
+            else
+              {
+                RTC::ComponentProfileList_var profs = mgrobj->get_component_profiles();
+                CORBA::ULong profs_len = profs->length();
+                for(CORBA::ULong i=0;i < profs_len;i++)
+                  {
+                    if(comp_param.impl_id() == std::string(profs[i].type_name))
+                      {
+                        std::string instance_name(profs[i].instance_name);
+                        try
+                          {
+                            RTC::RTCList_var rtc_list = mgrobj->get_components_by_name(instance_name.c_str());
+                            if(rtc_list->length() > 0)
+                              {
+                                return RTC::RTObject::_duplicate(rtc_list[0]);  
+                              }
+                          }
+                        catch (CORBA::SystemException&)
+                          {
+                            RTC_ERROR(("Exception was caught while creating component."));
+                          }
+                        catch (...)
+                          {
+                            RTC_ERROR(("Unknown non-CORBA exception cought."));
+                          }
+                      }
+                  }
+              }
+            RTC_ERROR(("Component creatiion failed."));
+            return RTC::RTObject::_nil();
           }
         catch (CORBA::SystemException&)
           {

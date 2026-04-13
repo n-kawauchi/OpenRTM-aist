@@ -69,7 +69,7 @@ namespace RTC {
     "timer.enable",                          "YES",
     "timer.tick",                            "0.1",
 #ifdef ORB_IS_OMNIORB
-    "corba.args",                            "-ORBclientCallTimeOutPeriod 10000",
+    "corba.args",                            "-ORBclientCallTimeOutPeriod 10000 -ORBinConScanPeriod 0",
     "corba.endpoints", "all",
 #else
     "corba.args",                            "",
@@ -120,6 +120,12 @@ namespace RTC {
     "manager.modules.Java.profile_cmd",      "rtcprof2_java",
     "manager.modules.Java.suffixes",         "class",
     "manager.modules.Java.load_paths",       "",
+    "manager.modules.Docker.manager_cmd",    "rtcd2_docker",
+    "manager.modules.Docker.profile_cmd",    "rtcprof2_docker",
+    "manager.modules.Docker.suffixes",       "docker",
+    "manager.modules.Docker.load_paths",     "",
+    "manager.modules.Docker.create_comp",     "NO",
+    "manager.modules.Docker.build_comp",     "YES",
     "manager.modules.search_auto",       "YES",
     "manager.preload.modules",       "",
     "manager.components.precreate",       "",

@@ -589,7 +589,7 @@ namespace RTM
     { ";", "/", ":", "?", "@", "=", "+", "$", ",", "-",
       "_", ".", "!", "~", "*", "\"", "(", ")" };
     static const char* hex_chars = "0123456789abcdef";
-    size_t size = sizeof(non_escaped_punctuation) / sizeof(char);
+    size_t size = sizeof(non_escaped_punctuation) / sizeof(char*);
     std::string sn_str(sn);
     for (size_t i = 0; i < size; i++)
     {

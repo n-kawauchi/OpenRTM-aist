@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# @file rtcprof2_docker
+# @brief Docker container profile information extract command for OpenRTM
+# @author (c) Noriaki Ando <n-ando@aist.go.jp>
+#
+implementation_id=""
+type_name=""
+description=""
+version=""
+vendor=""
+category=""
+activity_type=""
+kind=""
+max_instance=""
+language=""
+lang_type=""
+
+if [ -n "$1" ]; then
+    eval `grep LABEL $1 | sed -e 's/LABEL //'`
+fi
+
+echo "implementation_id: $implementation_id"
+echo "type_name: $type_name"
+echo "description: $description"
+echo "version: $version"
+echo "vendor: $vendor"
+echo "category: $category"
+echo "activity_type: $activity_type"
+echo "kind: $kind"
+echo "max_instance: $max_instance"
+echo "language: $language"
+echo "lang_type: $lang_type"
+
+

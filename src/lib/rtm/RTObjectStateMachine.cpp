@@ -26,7 +26,8 @@ namespace RTC_impl
 {
   RTObjectStateMachine::RTObjectStateMachine(RTC::ExecutionContextHandle_t id,
                                              RTC::LightweightRTObject_ptr comp)
-    : m_id(id),
+    : rtclog("RTObjectStateMachine"),
+      m_id(id),
       m_rtobj(RTC::LightweightRTObject::_duplicate(comp)),
       m_sm(NUM_OF_LIFECYCLESTATE),
       m_ca(false), m_dfc(false), m_fsm(false), m_mode(false),
@@ -163,7 +164,33 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    m_caVar->on_startup(m_id);
+    try
+    {
+        m_caVar->on_startup(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
+
   }
   void RTObjectStateMachine::onShutdown()
   {
@@ -175,7 +202,33 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    m_caVar->on_shutdown(m_id);
+    try
+    {
+        m_caVar->on_shutdown(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
+
   }
   void RTObjectStateMachine::onActivated(const ExecContextStates&  /*st*/)
   {
@@ -190,12 +243,37 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    if (m_caVar->on_activated(m_id) != RTC::RTC_OK)
-      {
-        m_sm.goTo(RTC::ERROR_STATE);
+    try
+    {
+        if (m_caVar->on_activated(m_id) != RTC::RTC_OK)
+        {
+            m_sm.goTo(RTC::ERROR_STATE);
+            return;
+        }
         return;
-      }
-    return;
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
   }
 
   void RTObjectStateMachine::onDeactivated(const ExecContextStates&  /*st*/)
@@ -208,7 +286,32 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    m_caVar->on_deactivated(m_id);
+    try
+    {
+        m_caVar->on_deactivated(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
   }
 
   void RTObjectStateMachine::onAborting(const ExecContextStates&  /*st*/)
@@ -221,7 +324,32 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    m_caVar->on_aborting(m_id);
+    try
+    {
+        m_caVar->on_aborting(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
   }
 
   void RTObjectStateMachine::onError(const ExecContextStates&  /*st*/)
@@ -234,7 +362,32 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    m_caVar->on_error(m_id);
+    try
+    {
+        m_caVar->on_error(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
   }
 
   void RTObjectStateMachine::onReset(const ExecContextStates&  /*st*/)
@@ -250,11 +403,36 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_ca) { return; }
-    if (m_caVar->on_reset(m_id) != RTC::RTC_OK)
-      {
-        m_sm.goTo(RTC::ERROR_STATE);
+    try
+    {
+        if (m_caVar->on_reset(m_id) != RTC::RTC_OK)
+        {
+            m_sm.goTo(RTC::ERROR_STATE);
+            return;
+        }
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
         return;
-      }
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
     return;
   }
 
@@ -294,7 +472,33 @@ namespace RTC_impl
     // call Object reference
     if (!m_dfc) { return; }
     if (m_measure) { m_refMeasure.tick(); }
-    RTC::ReturnCode_t ret = m_dfcVar->on_execute(m_id);
+    RTC::ReturnCode_t ret;
+    try
+    {
+        ret = m_dfcVar->on_execute(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
     if (m_measure)
       {
         m_refMeasure.tack();
@@ -334,11 +538,36 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_dfc) { return; }
-    if (m_dfcVar->on_state_update(m_id) != RTC::RTC_OK)
-      {
-        m_sm.goTo(RTC::ERROR_STATE);
+    try
+    {
+        if (m_dfcVar->on_state_update(m_id) != RTC::RTC_OK)
+        {
+            m_sm.goTo(RTC::ERROR_STATE);
+            return;
+        }
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
         return;
-      }
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
     return;
   }
 
@@ -356,7 +585,33 @@ namespace RTC_impl
       }
     // call Object reference
     if (!m_dfc) { return RTC::RTC_ERROR; }
-    RTC::ReturnCode_t ret = m_dfcVar->on_rate_changed(m_id);
+    RTC::ReturnCode_t ret;
+    try
+    {
+        ret = m_dfcVar->on_rate_changed(m_id);
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
+        return RTC::RTC_ERROR;
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return RTC::RTC_ERROR;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return RTC::RTC_ERROR;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return RTC::RTC_ERROR;
+    }
     if (ret != RTC::RTC_OK)
       {
         m_sm.goTo(RTC::ERROR_STATE);
@@ -368,22 +623,72 @@ namespace RTC_impl
   void RTObjectStateMachine::onAction(const ExecContextStates&  /*st*/)
   {
     if (!m_fsm) { return; }
-    if (m_fsmVar->on_action(m_id) != RTC::RTC_OK)
-      {
-        m_sm.goTo(RTC::ERROR_STATE);
+    try
+    {
+        if (m_fsmVar->on_action(m_id) != RTC::RTC_OK)
+        {
+            m_sm.goTo(RTC::ERROR_STATE);
+            return;
+        }
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
         return;
-      }
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
     return;
   }
   // MultiModeComponentAction
   void RTObjectStateMachine::onModeChanged(const ExecContextStates&  /*st*/)
   {
     if (!m_mode) { return; }
-    if (m_modeVar->on_mode_changed(m_id) != RTC::RTC_OK)
-      {
-        m_sm.goTo(RTC::ERROR_STATE);
+    try
+    {
+        if (m_modeVar->on_mode_changed(m_id) != RTC::RTC_OK)
+        {
+            m_sm.goTo(RTC::ERROR_STATE);
+            return;
+        }
+    }
+#ifdef ORB_IS_OMNIORB
+    catch (const CORBA::TRANSIENT& e)
+    {
+        RTC_ERROR(("TRANSIENT: %s", e._name()));
         return;
-      }
+    }
+    catch (const CORBA::COMM_FAILURE& e)
+    {
+        RTC_ERROR(("COMM_FAILURE: %s", e._name()));
+        return;
+    }
+    catch (const CORBA::SystemException& e)
+    {
+        RTC_ERROR(("CORBA SystemException: %s", e._name()));
+        return;
+    }
+#endif
+    catch (...)
+    {
+        RTC_ERROR(("Unknown exception in on_startup"));
+        return;
+    }
     return;
   }
 

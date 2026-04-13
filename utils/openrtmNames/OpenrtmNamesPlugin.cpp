@@ -55,7 +55,7 @@ namespace OpenRTMNames
       CORBA::Object_var obj = orb->resolve_initial_references("IORTable");
       adapter = IORTable::Table::_narrow(obj.in());
 
-      CORBA::String_var ior = orb->object_to_string(nameservice->_this());
+      CORBA::String_var ior = orb->object_to_string(m_nameservice->_this());
       adapter->bind("NameService", ior.in());
 #endif
     }
@@ -96,7 +96,7 @@ namespace OpenRTMNames
     PortableServer::POA_var root_poa = m_manager->getPOA();
 
 
-    PortableServer::ObjectId_var oid = root_poa->servant_to_id(m_nameservice);
+    PortableServer::ObjectId_var oid = root_poa->servant_to_id(m_nameservice.inout());
     root_poa->deactivate_object(oid);
 
 
@@ -111,11 +111,11 @@ namespace OpenRTMNames
     ins_poa->deactivate_object(id.in());
 #endif
 #else
-    CORBA::Object_var obj = m_manager.theORB()->resolve_initial_references("IORTable");
+    CORBA::Object_var obj = m_manager->theORB()->resolve_initial_references("IORTable");
     IORTable::Table_var adapter = IORTable::Table::_narrow(obj.in());
 
 
-    coil::Properties config(m_manager.getConfig());
+    coil::Properties config(m_manager->getConfig());
 
     adapter->unbind("NameService");
 #endif
