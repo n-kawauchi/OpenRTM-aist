@@ -1458,9 +1458,9 @@ namespace RTC
     initLogstreamOthers();
 
     RTC_INFO(("OpenRTM %s", m_config["openrtm.version"].c_str()));
-    RTC_INFO(("Copyright (C) 2003-2024, Noriaki Ando and OpenRTM development team,"));
+    RTC_INFO(("Copyright (C) 2003-2026, Noriaki Ando and OpenRTM development team,"));
     RTC_INFO(("  Intelligent Systems Research Institute, AIST,"));
-    RTC_INFO(("Copyright (C) 2024, Noriaki Ando and OpenRTM development team,"));
+    RTC_INFO(("Copyright (C) 2026, Noriaki Ando and OpenRTM development team,"));
     RTC_INFO(("  Industrial Cyber-Physical Research Center, AIST,"));
     RTC_INFO(("  All right reserved."));
     RTC_INFO(("Manager starting."));
