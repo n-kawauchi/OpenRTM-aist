@@ -182,7 +182,11 @@ namespace RTM
    */
   CORBA::Object_ptr ObjectBinding::get_object()
   {
+#ifdef ORB_IS_RTORB
     return m_object.out();
+#else
+    return m_object.inout();
+#endif
   }
   /*!
    * @if jp
