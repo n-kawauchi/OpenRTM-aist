@@ -29,6 +29,13 @@ Replaces: openrtm2 (<< 2.0.2-0)
 Breaks: openrtm2 (<< 2.0.2-0)
 Description: OpenRTM-aist name server launcher
 
+Package: openrtm2-ssm-tp
+Architecture: any
+Multi-Arch: same
+Depends: openrtm2
+Description: OpenRTM-aist extension SSM package
+ Extensions of OpenRTM-aist
+
 Package: openrtm2-dev
 Architecture: any
 Multi-Arch: same
