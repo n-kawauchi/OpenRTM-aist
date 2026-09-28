@@ -19,6 +19,7 @@ export DH_OPTIONS
 INSTALL_PREFIX = @CMAKE_INSTALL_PREFIX@
 RTM_LIB_DIR=@INSTALL_RTM_LIB_DIR@
 RTM_EXT_DIR=@INSTALL_RTM_EXT_DIR@
+SSM_LIB_DIR=@SSM_LIB_PATH@
 
 # These are used for cross-compiling and for saving the configure script
 # from having to guess our platform (since we know it already)
@@ -45,6 +46,7 @@ TARGET_idl = $(CURDIR)/debian/openrtm2-idl/usr
 TARGET_example = $(CURDIR)/debian/openrtm2-example/usr
 TARGET_doc = $(CURDIR)/debian/openrtm2-doc/usr
 TARGET_naming = $(CURDIR)/debian/openrtm2-naming/usr
+TARGET_ssm = $(CURDIR)/debian/openrtm2-ssm-tp/usr
 
 #Architecture 
 build: build-arch build-indep
@@ -87,6 +89,7 @@ install-indep:
 	# for openrtm2-doc package
 	(mkdir -p $(TARGET_doc)/share/openrtm-$(SHORT_VER))
 	(cp -r $(INSTALL_PREFIX)/share/openrtm-$(SHORT_VER)/doc $(TARGET_doc)/share/openrtm-$(SHORT_VER))	
+	(cp $(CURDIR)/debian/copyright $(TARGET_doc)/share/openrtm-$(SHORT_VER)/doc)
 	dh_install -i
 
 install-arch:
@@ -103,15 +106,18 @@ install-arch:
 	(cp $(INSTALL_PREFIX)/bin/rtcd2 $(TARGET)/bin)
 	(cp $(INSTALL_PREFIX)/bin/rtcprof2 $(TARGET)/bin)
 	(cp $(INSTALL_PREFIX)/bin/rtm2-config $(TARGET)/bin)
+	(cp $(INSTALL_PREFIX)/bin/openrtmNames $(TARGET)/bin)
 	(cp -r $(INSTALL_PREFIX)/etc $(TARGET))
+	(rm $(TARGET)/etc/transport/rtc.ssm.conf)
 	(mkdir -p $(TARGET)/${RTM_EXT_DIR})
 	(cp -R $(INSTALL_PREFIX)/${RTM_LIB_DIR}/*.so* $(TARGET)/${RTM_LIB_DIR})
 	(cp $(INSTALL_PREFIX)/${RTM_LIB_DIR}/*.a $(TARGET)/${RTM_LIB_DIR})
 	(rm $(TARGET)/${RTM_LIB_DIR}/libhrtm*)
 	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR} $(TARGET)/${RTM_LIB_DIR})
-	(rm -r $(TARGET)/${RTM_EXT_DIR}/cmake)
-	(rm -r $(TARGET)/${RTM_EXT_DIR}/py_helper)
+	(rm -r $(TARGET)/${RTM_EXT_DIR}/transport)
 	(cp -r $(INSTALL_PREFIX)/${RTM_LIB_DIR}/pkgconfig $(TARGET)/${RTM_LIB_DIR})
+	(mkdir -p $(TARGET)/share/openrtm-$(SHORT_VER))
+	(cp -R $(INSTALL_PREFIX)/share/openrtm-$(SHORT_VER)/ssl $(TARGET)/share/openrtm-$(SHORT_VER))
 
 	# for openrtm2-naming package
 	(mkdir -p $(TARGET_naming)/bin)
@@ -122,9 +128,10 @@ install-arch:
 	(cp $(INSTALL_PREFIX)/bin/rtm2-skelwrapper $(TARGET_dev)/bin)
 	(cp -r $(INSTALL_PREFIX)/include $(TARGET_dev))
 	(rm -r $(TARGET_dev)/include/openrtm-$(SHORT_VER)/hrtm)
-	(mkdir -p $(TARGET_dev)/${RTM_EXT_DIR})
-	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR}/cmake $(TARGET_dev)/${RTM_EXT_DIR})
-	(cp -r $(INSTALL_PREFIX)/${RTM_EXT_DIR}/py_helper $(TARGET_dev)/${RTM_EXT_DIR})
+	(mkdir -p $(TARGET_dev)/${RTM_LIB_DIR})
+	(cp -r $(INSTALL_PREFIX)/${RTM_LIB_DIR}/cmake $(TARGET_dev)/${RTM_LIB_DIR})
+	(mkdir -p $(TARGET_dev)/share/openrtm-$(SHORT_VER))
+	(cp -r $(INSTALL_PREFIX)/share/openrtm-$(SHORT_VER)/py_helper $(TARGET_dev)/share/openrtm-$(SHORT_VER))
 
 	# for openrtm2-idl package
 	(mkdir -p $(TARGET_idl)/include/openrtm-$(SHORT_VER)/rtm/idl)
@@ -137,6 +144,16 @@ install-arch:
 	# for openrtm2-example package
 	(mkdir -p $(TARGET_example)/share/openrtm-$(SHORT_VER))
 	(cp -R $(INSTALL_PREFIX)/share/openrtm-$(SHORT_VER)/components $(TARGET_example)/share/openrtm-$(SHORT_VER))
+
+	# for openrtm2-ssm-tp package
+	(mkdir -p $(TARGET_ssm)/share/openrtm-$(SHORT_VER)/transport)
+	(cp $(INSTALL_PREFIX)/${RTM_EXT_DIR}/transport/SSMTransport.so $(TARGET_ssm)/share/openrtm-$(SHORT_VER)/transport)
+	(mkdir -p $(TARGET_ssm)/etc/transport)
+	(cp $(INSTALL_PREFIX)/etc/transport/rtc.ssm.conf $(TARGET_ssm)/etc/transport)
+	(mkdir -p $(TARGET_ssm)/${RTM_LIB_DIR})
+	(cp -a ${SSM_LIB_DIR}/libssm.so* $(TARGET_ssm)/${RTM_LIB_DIR})
+	(mkdir -p $(TARGET_ssm)/bin)
+	(cp -r /usr/local/bin/*ssm* $(TARGET_ssm)/bin)
 
 	dh_install -a
 # Must not depend on anything. This is to be called by
