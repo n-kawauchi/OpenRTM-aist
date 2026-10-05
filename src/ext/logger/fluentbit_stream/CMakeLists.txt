@@ -53,10 +53,17 @@ set(srcs FluentBit.cpp FluentBit.h)
 add_library(flb_wrapper STATIC flb_api_wrapper.c)
 
 # インクルードディレクトリの追加（Monkeyヘッダーの検索パスを通す）
-target_include_directories(flb_wrapper PRIVATE
-    /usr/local/include
-    /usr/local/include/monkey
-)
+if(MSVC)
+  target_include_directories(flb_wrapper PRIVATE
+			${FLB_INCLUDR_DIR}
+			${FLB_INCLUDR_DIR}/monkey
+  )
+else()
+  target_include_directories(flb_wrapper PRIVATE
+      /usr/local/include
+      /usr/local/include/monkey
+  )
+endif()
 
 # 言語規格の設定 (CMake標準機能なので OS を問わず安全)
 set_target_properties(flb_wrapper PROPERTIES
