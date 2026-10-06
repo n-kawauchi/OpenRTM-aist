@@ -26,7 +26,7 @@ namespace coil
 {
   /*!
    * @if jp
-   * @brief ¥³¥ó¥¹¥È¥é¥¯¥¿
+   * @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
    * @else
    * @brief Constructor
    * @endif
@@ -38,7 +38,7 @@ namespace coil
 
   /*!
    * @if jp
-   * @brief ¥Ç¥¹¥È¥é¥¯¥¿
+   * @brief ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
    * @else
    * @brief Destructor
    * @endif
@@ -50,7 +50,7 @@ namespace coil
 
   /*!
    * @if jp
-   * @brief ¥³¥Ô¡¼¥³¥ó¥¹¥È¥é¥¯¥¿
+   * @brief ã‚³ãƒ”ãƒ¼ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
    * @else
    * @brief Copy Constructor
    * @endif
@@ -67,7 +67,7 @@ namespace coil
 
   /*!
    * @if jp
-   * @brief ÂåÆş±é»»»Ò
+   * @brief ä»£å…¥æ¼”ç®—å­
    * @else
    * @brief Assignment operator
    * @endif
@@ -87,13 +87,13 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¶¦Í­¥á¥â¥ê¤ÎÀ¸À®
-   *¡£
+   * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã®ç”Ÿæˆ
+   *ã€‚
    *
-   * @param shm_address ¶¦Í­¥á¥â¥ê¤Î¼±ÊÌ»Ò
-   * @param memory_size ¶¦Í­¥á¥â¥ê¤Î¥µ¥¤¥º
+   * @param shm_address å…±æœ‰ãƒ¡ãƒ¢ãƒªã®è­˜åˆ¥å­
+   * @param memory_size å…±æœ‰ãƒ¡ãƒ¢ãƒªã®ã‚µã‚¤ã‚º
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -135,12 +135,12 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¶¦Í­¥á¥â¥ê¤Ø¤Î¥¢¥¯¥»¥¹
-   *¡£
+   * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã¸ã®ã‚¢ã‚¯ã‚»ã‚¹
+   *ã€‚
    *
-   * @param shm_address ¶¦Í­¥á¥â¥ê¤Î¼±ÊÌ»Ò
+   * @param shm_address å…±æœ‰ãƒ¡ãƒ¢ãƒªã®è­˜åˆ¥å­
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -179,12 +179,12 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¶¦Í­¥á¥â¥ê¤Ø¤Î½ñ¤­¹ş¤ß
-   *¡£
+   * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã¸ã®æ›¸ãè¾¼ã¿
+   *ã€‚
    *
-   * @param data ½ñ¤­¹ş¤à¥Ç¡¼¥¿
+   * @param data æ›¸ãè¾¼ã‚€ãƒ‡ãƒ¼ã‚¿
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -212,12 +212,12 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¶¦Í­¥á¥â¥ê¤«¤é¤ÎÆÉ¤ß¹ş¤ß
-   *¡£
+   * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã‹ã‚‰ã®èª­ã¿è¾¼ã¿
+   *ã€‚
    *
-   * @param data ÆÉ¤ß¹ş¤à¥Ç¡¼¥¿
+   * @param data èª­ã¿è¾¼ã‚€ãƒ‡ãƒ¼ã‚¿
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -245,11 +245,11 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¶¦Í­¥á¥â¥ê¤Îºï½ü
-   *¡£
+   * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã®å‰Šé™¤
+   *ã€‚
    *
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -278,11 +278,11 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¥á¥â¥ê¤Î¥µ¥¤¥º¼èÆÀ
-   *¡£
+   * @brief ãƒ¡ãƒ¢ãƒªã®ã‚µã‚¤ã‚ºå–å¾—
+   *ã€‚
    *
    *
-   * @return ¥µ¥¤¥º
+   * @return ã‚µã‚¤ã‚º
    *
    * @else
    *
@@ -301,11 +301,11 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¥á¥â¥ê¤Î¥¢¥É¥ì¥¹¼èÆÀ
-   *¡£
+   * @brief ãƒ¡ãƒ¢ãƒªã®ã‚¢ãƒ‰ãƒ¬ã‚¹å–å¾—
+   *ã€‚
    *
    *
-   * @return ¥¢¥É¥ì¥¹
+   * @return ã‚¢ãƒ‰ãƒ¬ã‚¹
    *
    * @else
    *
@@ -324,11 +324,11 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¥á¥â¥ê¤Î¼èÆÀ
+   * @brief ãƒ¡ãƒ¢ãƒªã®å–å¾—
    *
    *
    *
-   * @return ¥á¥â¥ê
+   * @return ãƒ¡ãƒ¢ãƒª
    *
    * @else
    *
@@ -350,11 +350,11 @@ namespace coil
   /*!
    * @if jp
    *
-   * @brief ¥Õ¥¡¥¤¥ëºï½ü(Windows¤Î¾ì¹ç¤Ï²¿¤â¤·¤Ê¤¤)
+   * @brief ãƒ•ã‚¡ã‚¤ãƒ«å‰Šé™¤(Windowsã®å ´åˆã¯ä½•ã‚‚ã—ãªã„)
    *
    *
    *
-   * @return 0: À®¸ù, -1: ¼ºÇÔ
+   * @return 0: æˆåŠŸ, -1: å¤±æ•—
    *
    * @else
    *
@@ -376,11 +376,11 @@ namespace coil
   /*!
   * @if jp
   *
-  * @brief ¶¦Í­¥á¥â¥ê¤ËÀ¸À®ºÑ¤ß¤«¤Î³ÎÇ§
+  * @brief å…±æœ‰ãƒ¡ãƒ¢ãƒªã«ç”Ÿæˆæ¸ˆã¿ã‹ã®ç¢ºèª
   *
   *
   *
-  * @return true: ºîÀ®ºÑ¤ß, false: Ì¤ºîÀ®
+  * @return true: ä½œæˆæ¸ˆã¿, false: æœªä½œæˆ
   *
   * @else
   *

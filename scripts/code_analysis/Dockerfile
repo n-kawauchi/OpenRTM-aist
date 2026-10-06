@@ -1,6 +1,7 @@
-# Code check by the latest clang.
-FROM ubuntu:20.04
-ARG CLANG_VAR=9
+# Code check with Clang 18 on Ubuntu 24.04. 
+FROM ubuntu:24.04
+
+ARG CLANG_VAR=18
 
 RUN apt-get update\
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends\

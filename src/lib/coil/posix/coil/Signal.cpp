@@ -25,7 +25,7 @@ namespace coil
 {
   /*!
    * @if jp
-   * @brief ¥³¥ó¥¹¥È¥é¥¯¥¿
+   * @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
    * @else
    * @brief Constructor
    * @endif
@@ -36,9 +36,9 @@ namespace coil
 
   /*!
    * @if jp
-   * @brief ¥³¥ó¥¹¥È¥é¥¯¥¿
-   * @param handle ¥·¥°¥Ê¥ë¥Ï¥ó¥É¥é
-   * @param signum ¥·¥°¥Ê¥ëÈÖ¹æ
+   * @brief ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+   * @param handle ã‚·ã‚°ãƒŠãƒ«ãƒãƒ³ãƒ‰ãƒ©
+   * @param signum ã‚·ã‚°ãƒŠãƒ«ç•ªå·
    * @else
    * @brief Constructor
    * @param handle Signal handler.
@@ -63,7 +63,7 @@ namespace coil
 
   /*!
    * @if jp
-   * @brief ¥Ç¥¹¥È¥é¥¯¥¿
+   * @brief ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
    * @else
    * @brief Destructor
    * @endif
