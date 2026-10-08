@@ -16,8 +16,11 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(fastcdr REQUIRED)
-find_package(fastrtps REQUIRED)
-
+if(FASTDDS_ENABLE)
+	find_package(fastdds REQUIRED)
+else()
+	find_package(fastrtps REQUIRED)
+endif()
 
 
 
