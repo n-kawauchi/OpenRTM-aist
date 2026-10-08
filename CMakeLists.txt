@@ -131,6 +131,11 @@ elseif(UNIX)
 	endif()
 	if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.0.0)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-aggressive-loop-optimizations --param max-inline-insns-single=1000 --param inline-unit-growth=1000 --param large-function-growth=2000")
+		add_compile_options(
+			-Wno-alloc-zero
+			-Wno-error=alloc-zero
+			-Wno-error=null-dereference
+		)
 	endif()
 	if(SSM_ROOT)
 		if(IS_DIRECTORY "${SSM_ROOT}/lib64")
