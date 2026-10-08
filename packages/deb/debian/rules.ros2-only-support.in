@@ -191,7 +191,7 @@ binary-common:
 #	dh_perl
 	dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps
+	dh_shlibdeps -l/opt/ros/lyrical/lib:/opt/ros/lyrical/lib/x86_64-linux-gnu
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
