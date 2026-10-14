@@ -30,7 +30,8 @@
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/xmlparser/XMLProfileManager.h>
+//#include <fastdds/xmlparser/XMLProfileManager.h>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 #include "FastDDSManager.h"
 #include "FastDDSMessageInfo.h"
 
@@ -54,7 +55,8 @@ namespace RTC
    : m_buffer(nullptr), m_listeners(nullptr), m_connector(nullptr), m_listener(this)
   {
     // PortProfile setting
-    setInterfaceType("fast-rtps");
+    //setInterfaceType("fast-rtps");
+    setInterfaceType("fast-dds");
     // ConnectorProfile setting
 
   }
@@ -74,7 +76,12 @@ namespace RTC
 
     if (m_subscriber != nullptr)
     {
-        eprosima::fastrtps::Domain::removeSubscriber(m_subscriber);
+        //eprosima::fastrtps::Domain::removeSubscriber(m_subscriber);
+	auto factory = eprosima::fastdds::dds::DomainParticipantFactory::get_instance();
+	if (factory->delete_participant(m_subscriber) == eprosima::fastdds::dds::ReturnCode_t::RETCODE_OK)
+	{
+		m_subscriber = nullptr;
+	}
     }
 
   }
@@ -107,19 +114,21 @@ namespace RTC
     }
 
     FastDDSManager& topicmgr = FastDDSManager::instance();
-    eprosima::fastrtps::Participant* participant = topicmgr.getParticipant();
+    //eprosima::fastrtps::Participant* participant = topicmgr.getParticipant();
+    eprosima::fastdds::dds::DomainParticipant* participant = topicmgr.getParticipant();
 
     if (participant == nullptr)
     {
-        RTC_ERROR(("Can not initialize Fast-RTPS"));
+        RTC_ERROR(("Can not initialize Fast-DDS"));
         throw std::bad_alloc();
     }
 
     
 
     std::string marshaling_type = prop.getProperty("marshaling_type", "corba");
-    coil::Properties& fastrtps_prop = prop.getNode("fast-rtps");
-    m_topic = fastrtps_prop.getProperty("topic", "chatter");
+    coil::Properties& fastdds_prop = prop.getNode("fast-dds");
+    //m_topic = fastrtps_prop.getProperty("topic", "chatter");
+    m_topic = fastdds_prop.getProperty("topic", "chatter");
     
 
     const std::string str_corba = "corba";
@@ -182,24 +191,29 @@ namespace RTC
         topicmgr.registerType(type);
     }
 
-    std::string subscriber_name = fastrtps_prop.getProperty("subscriber.name");
-    eprosima::fastrtps::SubscriberAttributes *Rparam = new eprosima::fastrtps::SubscriberAttributes();
+    //std::string subscriber_name = fastrtps_prop.getProperty("subscriber.name");
+    std::string subscriber_name = fastrdds_prop.getProperty("subscriber.name");
+    //eprosima::fastrtps::SubscriberAttributes *Rparam = new eprosima::fastrtps::SubscriberAttributes();
+    eprosima::fastdds::dds::DataReaderQos *Rparam = new eprosima::fastdds::DataReaderQos();
     if (subscriber_name.empty() || !topicmgr.xmlConfigured())
     {
       
-      Rparam->topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+      //Rparam->topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+      Rparam->topic.topicKind = eprosima::fastdds::rtps::NO_KEY;
       Rparam->topic.topicDataType = m_dataType;
       Rparam->topic.topicName = m_topic;
       
-      setSubParam(fastrtps_prop, Rparam);
+      setSubParam(fastdds_prop, Rparam);
 
     }
     else
     {
       RTC_INFO(("Subscriber name:", subscriber_name.c_str()));
-      if(eprosima::fastrtps::xmlparser::XMLP_ret::XML_ERROR == eprosima::fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(subscriber_name, *Rparam))
+      //if(eprosima::fastrtps::xmlparser::XMLP_ret::XML_ERROR == eprosima::fastrtps::xmlparser::XMLProfileManager::fillSubscriberAttributes(subscriber_name, *Rparam))
+      if (eprosima::fastdds::dds::RETCODE_OK != eprosima::fastdds::dds::DomainParticipantFactory::get_instance()->get_datareader_qos_from_xml(subscriber_name, *Rparam))
       {
-        RTC_ERROR(("xml file load failed"));
+        //RTC_ERROR(("xml file load failed"));
+	RTC_ERROR(("Failed to load DataReader QoS profile from XML"));
         delete Rparam;
         throw std::bad_alloc();
       }
@@ -211,6 +225,7 @@ namespace RTC
     outputLog(Rparam);
 
 
+    //m_subscriber = eprosima::fastrtps::Domain::createSubscriber(participant, *Rparam, (eprosima::fastrtps::SubscriberListener*)&m_listener);
     m_subscriber = eprosima::fastrtps::Domain::createSubscriber(participant, *Rparam, (eprosima::fastrtps::SubscriberListener*)&m_listener);
 
 
@@ -446,11 +461,8 @@ namespace RTC
    *
    * @endif
    */
-#if (FASTRTPS_VERSION_MAJOR <= 1) && (FASTRTPS_VERSION_MINOR <= 7)
-  void FastDDSInPort::setDuration(coil::Properties& prop, eprosima::fastrtps::rtps::Duration_t& time)
-#else
-  void FastDDSInPort::setDuration(coil::Properties& prop, eprosima::fastrtps::Duration_t& time)
-#endif
+  //void FastDDSInPort::setDuration(coil::Properties& prop, eprosima::fastrtps::Duration_t& time)
+  void FastDDSInPort::setDuration(coil::Properties& prop, eprosima::fastdds::dds::Duration_t& time)
   {
     std::string sec_str = prop["seconds"];
     std::string nanosec_str = prop["nanosec"];
@@ -627,92 +639,67 @@ namespace RTC
     //Rparam->qos.m_userData
     //Rparam->qos.representation.m_value
 
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    Rparam->qos.m_typeConsistency.m_force_type_validation = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam->qos.m_typeConsistency.m_force_type_validation);
-#else
-    Rparam->qos.type_consistency.m_force_type_validation = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam->qos.type_consistency.m_force_type_validation);
-#endif
+    //Rparam->qos.type_consistency.m_force_type_validation = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam->qos.type_consistency.m_force_type_validation);
+    Rparam->qos.type_consistency.m_force_type_validation = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam->qos.type_consistency.m_force_type_validation);
 
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    Rparam->qos.m_typeConsistency.m_ignore_member_names = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam->qos.m_typeConsistency.m_ignore_member_names);
-#else
-    Rparam->qos.type_consistency.m_ignore_member_names = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_member_names);
-#endif
+    //Rparam->qos.type_consistency.m_ignore_member_names = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_member_names);
+    Rparam->qos.type_consistency.m_ignore_member_names = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_member_names);
 
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    Rparam->qos.m_typeConsistency.m_ignore_sequence_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam->qos.m_typeConsistency.m_ignore_sequence_bounds);
-#else
-    Rparam->qos.type_consistency.m_ignore_sequence_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_sequence_bounds);
-#endif
+    //Rparam->qos.type_consistency.m_ignore_sequence_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_sequence_bounds);
+    Rparam->qos.type_consistency.m_ignore_sequence_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_sequence_bounds);
 
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    Rparam->qos.m_typeConsistency.m_ignore_string_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.m_typeConsistency.m_ignore_string_bounds);
-#else
-    Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
-#endif
+    //Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
+    Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
 
     std::string type_consistency_kind = fastrtps_prop.getProperty("subscriber.qos.type_consistency.kind", "ALLOW_TYPE_COERCION");
 
     if (type_consistency_kind == "DISALLOW_TYPE_COERCION")
     {
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-      Rparam->qos.m_typeConsistency.m_kind
-#else
       Rparam->qos.type_consistency.m_kind
-#endif
-        = eprosima::fastrtps::DISALLOW_TYPE_COERCION;
+        //= eprosima::fastrtps::DISALLOW_TYPE_COERCION;
+        = eprosima::fastdds::dds::DISALLOW_TYPE_COERCION;
     }
     else if (type_consistency_kind == "ALLOW_TYPE_COERCION")
     {
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-      Rparam->qos.m_typeConsistency.m_kind
-#else
       Rparam->qos.type_consistency.m_kind
-#endif
-        = eprosima::fastrtps::ALLOW_TYPE_COERCION;
+        //= eprosima::fastrtps::ALLOW_TYPE_COERCION;
+        = eprosima::fastdds::dds::ALLOW_TYPE_COERCION;
     }
 
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    Rparam->qos.m_typeConsistency.m_prevent_type_widening = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam->qos.m_typeConsistency.m_prevent_type_widening);
-#else
-    Rparam->qos.type_consistency.m_prevent_type_widening = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam->qos.type_consistency.m_prevent_type_widening);
-#endif
+    //Rparam->qos.type_consistency.m_prevent_type_widening = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam->qos.type_consistency.m_prevent_type_widening);
+    Rparam->qos.type_consistency.m_prevent_type_widening = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam->qos.type_consistency.m_prevent_type_widening);
 
 
-    std::string history_memory_policy = fastrtps_prop.getProperty("subscriber.history_memory_policy", "PREALLOCATED_WITH_REALLOC_MEMORY_MODE");
+    std::string history_memory_policy = fastdds_prop.getProperty("subscriber.history_memory_policy", "PREALLOCATED_WITH_REALLOC_MEMORY_MODE");
     if (history_memory_policy == "PREALLOCATED_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastrtps::rtps::PREALLOCATED_MEMORY_MODE;
+      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_MEMORY_MODE;
     }
     else if (history_memory_policy == "PREALLOCATED_WITH_REALLOC_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
     }
     else if (history_memory_policy == "DYNAMIC_RESERVE_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastrtps::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
+      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
     }
-#if (FASTRTPS_VERSION_MAJOR > 1)
-    else if (history_memory_policy == "DYNAMIC_REUSABLE_MEMORY_MODE")
-    {
-      Rparam->historyMemoryPolicy = eprosima::fastrtps::rtps::DYNAMIC_REUSABLE_MEMORY_MODE;
-    }
-#endif
 
-    coil::stringTo<int32_t>(Rparam->topic.historyQos.depth, fastrtps_prop["subscriber.topic.historyQos.depth"].c_str());
+    coil::stringTo<int32_t>(Rparam->topic.historyQos.depth, fastdds_prop["subscriber.topic.historyQos.depth"].c_str());
 
-    std::string topic_historyQos_kind = fastrtps_prop.getProperty("subscriber.topic.historyQos.kind", "KEEP_LAST_HISTORY_QOS");
+    std::string topic_historyQos_kind = fastdds_prop.getProperty("subscriber.topic.historyQos.kind", "KEEP_LAST_HISTORY_QOS");
     if (history_memory_policy == "KEEP_LAST_HISTORY_QOS")
     {
-      Rparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+      //Rparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+      Rparam->topic.historyQos.kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
     }
     else if (history_memory_policy == "KEEP_ALL_HISTORY_QOS")
     {
-      Rparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+      //Rparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+      Rparam->topic.historyQos.kind = eprosima::fastdds::KEEP_ALL_HISTORY_QOS;
     }
 
-    setDuration(fastrtps_prop.getNode("subscriber.times.heartbeatResponseDelay"), Rparam->times.heartbeatResponseDelay);
-    setDuration(fastrtps_prop.getNode("subscriber.times.initialAcknackDelay"), Rparam->times.initialAcknackDelay);
+    setDuration(fastdds_prop.getNode("subscriber.times.heartbeatResponseDelay"), Rparam->times.heartbeatResponseDelay);
+    setDuration(fastdds_prop.getNode("subscriber.times.initialAcknackDelay"), Rparam->times.initialAcknackDelay);
   }
 
 
@@ -755,21 +742,12 @@ namespace RTC
     RTC_DEBUG(("ReaderQos setting: subscriber.reliability.kind: %hhu", Rparam->qos.m_reliability.kind));
     RTC_DEBUG(("ReaderQos setting: subscriber.reliability.max_blocking_time: sec=%d nanosec=%u", Rparam->qos.m_reliability.max_blocking_time.seconds, Rparam->qos.m_reliability.max_blocking_time.nanosec));
     RTC_DEBUG(("ReaderQos setting: subscriber.timeBasedFilter.minimum_separation: sec=%d nanosec=%u", Rparam->qos.m_timeBasedFilter.minimum_separation.seconds, Rparam->qos.m_timeBasedFilter.minimum_separation.nanosec));
-#if (FASTRTPS_VERSION_MAJOR <= 1)
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.force_type_validation: %s", (Rparam->qos.m_typeConsistency.m_force_type_validation ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_member_names: %s", (Rparam->qos.m_typeConsistency.m_ignore_member_names ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_sequence_bounds: %s", (Rparam->qos.m_typeConsistency.m_ignore_sequence_bounds ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_string_bounds: %s", (Rparam->qos.m_typeConsistency.m_ignore_string_bounds ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.kind: %hhu", Rparam->qos.m_typeConsistency.m_kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.prevent_type_widening: %s", (Rparam->qos.m_typeConsistency.m_prevent_type_widening ? "true" : "false")));
-#else
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.force_type_validation: %s", (Rparam->qos.type_consistency.m_force_type_validation ? "true" : "false")));
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_member_names: %s", (Rparam->qos.type_consistency.m_ignore_member_names ? "true" : "false")));
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_sequence_bounds: %s", (Rparam->qos.type_consistency.m_ignore_sequence_bounds ? "true" : "false")));
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_string_bounds: %s", (Rparam->qos.type_consistency.m_ignore_string_bounds ? "true" : "false")));
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.kind: %hhu", Rparam->qos.type_consistency.m_kind));
     RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.prevent_type_widening: %s", (Rparam->qos.type_consistency.m_prevent_type_widening ? "true" : "false")));
-#endif
     RTC_DEBUG(("ReaderQos setting: subscriber.history_memory_policy: %d", Rparam->historyMemoryPolicy));
     RTC_DEBUG(("ReaderQos setting: subscriber.times.heartbeatResponseDelay: sec=%d nanosec=%u", Rparam->times.heartbeatResponseDelay.seconds, Rparam->times.heartbeatResponseDelay.nanosec));
     RTC_DEBUG(("ReaderQos setting: subscriber.times.initialAcknackDelay: sec=%d nanosec=%u", Rparam->times.initialAcknackDelay.seconds, Rparam->times.initialAcknackDelay.nanosec));

@@ -58,7 +58,9 @@ namespace RTC
         m_endian = endian;
     }
 
-    bool CORBACdrDataPubSubType::serialize(void *data, eprosima::fastrtps::rtps::SerializedPayload_t *payload)
+    bool CORBACdrDataPubSubType::serialize(const void* const data, 
+		    eprosima::fastdds::rtps::SerializedPayload_t& payload,
+		    eprosima::fastdds::dds::DataRepresentationId_t data_representation)
     {
         RTC::ByteData* p_type = (RTC::ByteData*) data;
         if (!m_header_enable)
@@ -127,7 +129,7 @@ namespace RTC
         return true;
     }
 
-    bool CORBACdrDataPubSubType::deserialize(eprosima::fastrtps::rtps::SerializedPayload_t* payload, void* data)
+    bool CORBACdrDataPubSubType::deserialize(eprosima::fastdds::rtps::SerializedPayload_t& payload, void* data)
     {
 
         RTC::ByteData* p_type = (RTC::ByteData*) data; //Convert DATA to pointer of your type
@@ -175,12 +177,12 @@ namespace RTC
         return true;
     }
 
-    std::function<uint32_t()> CORBACdrDataPubSubType::getSerializedSizeProvider(void* data) {
-        return [data]() -> uint32_t
-        {
-            return (uint32_t)static_cast<RTC::ByteData*>(data)->getDataLength() + 4 /*encapsulation*/;
-        };
-    }
+    //std::function<uint32_t()> CORBACdrDataPubSubType::getSerializedSizeProvider(void* data) {
+    //    return [data]() -> uint32_t
+    //    {
+    //        return (uint32_t)static_cast<RTC::ByteData*>(data)->getDataLength() + 4 /*encapsulation*/;
+    //    };
+    //}
 
     void* CORBACdrDataPubSubType::createData() {
         return (void*)new RTC::ByteData();
@@ -189,11 +191,8 @@ namespace RTC
     void CORBACdrDataPubSubType::deleteData(void* data) {
         delete static_cast<RTC::ByteData*>(data);
     }
-#if (FASTRTPS_VERSION_MAJOR <= 1) && (FASTRTPS_VERSION_MINOR == 6)
-    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle) {
-#else
-    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
-#endif
+    //bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
+    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastdds::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
         if(!m_isGetKeyDefined)
             return false;
         if (m_keyBuffer == nullptr)

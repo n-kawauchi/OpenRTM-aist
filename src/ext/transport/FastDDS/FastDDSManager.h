@@ -268,6 +268,7 @@ namespace RTC
          *
          * @endif
          */
+	//static void setParticipantSecParam(coil::Properties& prop, eprosima::fastrtps::ParticipantAttributes &PParam);
         static void setParticipantSecParam(coil::Properties& prop, eprosima::fastdds::dds::ParticipantAttributes &PParam);
         static FastDDSManager* manager;
         static std::mutex mutex;

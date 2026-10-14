@@ -1,7 +1,7 @@
 ﻿// -*- C++ -*-
 /*!
- * @file  FastDDSOutPort.cpp
- * @brief FastDDSOutPort class
+ * @file  FastDDSTransport.cpp
+ * @brief FastDDSTransport class
  * @date  $Date: 2019-01-31 03:08:03 $
  * @author Nobuhiko Miyamoto <n-miyamoto@aist.go.jp>
  *

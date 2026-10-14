@@ -402,11 +402,8 @@ namespace RTC
      *
      * @endif
      */
-#if (FASTRTPS_VERSION_MAJOR <= 1) && (FASTRTPS_VERSION_MINOR <= 7)
-    static void setDuration(coil::Properties& prop, eprosima::fastrtps::rtps::Duration_t& time);
-#else
-    static void setDuration(coil::Properties& prop, eprosima::fastrtps::Duration_t& time);
-#endif
+    
+    static void setDuration(coil::Properties& prop, eprosima::fastdds::dds::Duration_t& time);
     /*!
      * @if jp
      * @brief プロパティからeprosima::fastrtps::SubscriberAttributesを設定する
@@ -423,7 +420,7 @@ namespace RTC
      *
      * @endif
      */
-    static void setSubParam(coil::Properties& fastrtps_prop, eprosima::fastrtps::SubscriberAttributes* Rparam);
+    static void setSubParam(coil::Properties& fastdds_prop, eprosima::fastdds::dds::DataReaderQos& Rparam);
     /*!
      * @if jp
      * @brief eprosima::fastrtps::SubscriberAttributesのパラメータをログに出力する
@@ -438,7 +435,8 @@ namespace RTC
      *
      * @endif
      */
-    void outputLog(const eprosima::fastrtps::SubscriberAttributes* Rparam);
+    //void outputLog(const eprosima::fastrtps::SubscriberAttributes* Rparam);
+    void outputLog(const eprosima::fastdds::dds::DataReaderQos& Rparam);
 
     CdrBufferBase* m_buffer;
     ConnectorInfo m_profile;
@@ -449,7 +447,8 @@ namespace RTC
     std::string m_topic;
     std::string m_dataType;
     std::mutex m_mutex;
-    eprosima::fastrtps::Subscriber *m_subscriber{nullptr};
+    //eprosima::fastrtps::Subscriber *m_subscriber{nullptr};
+    eprosima::fastdds::dds::DataReader *m_subscriber{nullptr};
 
 
     /*!
@@ -472,7 +471,8 @@ namespace RTC
      *
      * @endif
      */
-    class SubListener : public eprosima::fastrtps::SubscriberListener
+    //class SubListener : public eprosima::fastrtps::SubscriberListener
+    class SubListener : public eprosima::fastdds::dds::DataReaderListener
     {
     public:
       /*!
@@ -521,7 +521,8 @@ namespace RTC
        *
        * @endif
        */
-      void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info) override;
+      //void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info) override;
+      void onSubscriptionMatched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
       /*!
        * @if jp
        * @brief
@@ -538,9 +539,11 @@ namespace RTC
        *
        * @endif
        */
-      void onNewDataMessage(eprosima::fastrtps::Subscriber* sub) override;
+      //void onNewDataMessage(eprosima::fastrtps::Subscriber* sub) override;
+      void onNewDataMessage(eprosima::fastdds::dds::DataReader* sub) override;
     private:
-      eprosima::fastrtps::SampleInfo_t m_info;
+      //eprosima::fastrtps::SampleInfo_t m_info;
+      eprosima::fastdds::dds::SampleInfo_t m_info;
       mutable Logger rtclog;
       FastDDSInPort* m_provider;
       RTC::ByteData m_data;

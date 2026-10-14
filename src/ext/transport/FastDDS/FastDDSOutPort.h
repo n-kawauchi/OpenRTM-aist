@@ -255,7 +255,7 @@ namespace RTC
      *
      * @endif
      */
-    static void setDuration(coil::Properties& prop, eprosima::fastdds::Duration_t& time);
+    static void setDuration(coil::Properties& prop, eprosima::fastdds::dds::Duration_t& time);
 
     /*!
      * @if jp
@@ -369,7 +369,7 @@ namespace RTC
          *
          * @endif
          */
-        void onPublicationMatched(eprosima::fastdds::dds::DataWriter* pub, const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
+        void on_publication_matched(eprosima::fastdds::dds::DataWriter* pub, const eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
     } m_listener;
     
   };

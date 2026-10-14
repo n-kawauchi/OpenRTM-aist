@@ -28,6 +28,9 @@
 #pragma warning(disable:4819)
 #endif
 #include <fastdds/dds/topic/TopicDataType.hpp>
+#include <fastdds/rtps/common/SerializedPayload.hpp>
+#include <fastdds/rtps/common/InstanceHandle.hpp>
+#include <fastdds/utils/md5.hpp>
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #pragma warning(pop)
 #endif
@@ -41,7 +44,7 @@ namespace RTC
      * @brief This class represents the TopicDataType of the type CORBACdrData defined by the user in the IDL file.
      * @ingroup CORBACdrData
      */
-    class CORBACdrDataPubSubType : public eprosima::fastrtps::TopicDataType {
+    class CORBACdrDataPubSubType : public eprosima::fastdds::dds::TopicDataType {
     public:
         using type = CORBACdrData;
 
@@ -49,18 +52,18 @@ namespace RTC
         ~CORBACdrDataPubSubType() override;
         void init(std::string name, bool header_enable);
         void setEndian(bool endian);
-        bool serialize(void *data, eprosima::fastrtps::rtps::SerializedPayload_t *payload) override;
-        bool deserialize(eprosima::fastrtps::rtps::SerializedPayload_t *payload, void *data) override;
-        std::function<uint32_t()> getSerializedSizeProvider(void* data) override;
-#if (FASTRTPS_VERSION_MAJOR <= 1) && (FASTRTPS_VERSION_MINOR <= 6)
-        bool getKey(void *data, eprosima::fastrtps::rtps::InstanceHandle_t *ihandle) override;
-#else
-        bool getKey(void *data, eprosima::fastrtps::rtps::InstanceHandle_t *ihandle, bool force_md5) override;
-#endif
+        bool serialize(const void* const data, 
+		eprosima::fastdds::rtps::SerializedPayload_t& payload,
+		eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
+        bool deserialize(eprosima::fastdds::rtps::SerializedPayload_t& payload, void* data) override;
+        //std::function<uint32_t()> getSerializedSizeProvider(void* data) override;
+        bool getKey(const void* const data, 
+		eprosima::fastdds::rtps::InstanceHandle_t *ihandle, 
+		bool force_md5 = false) override;
         void* createData() override;
-        void deleteData(void * data) override;
+        void deleteData(void* data) override;
     private:
-        MD5 m_md5;
+        eprosima::fastdds::MD5 m_md5;
         unsigned char* m_keyBuffer;
         bool m_endian;
         bool m_header_enable;
