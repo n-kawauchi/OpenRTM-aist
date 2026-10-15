@@ -57,8 +57,14 @@ namespace RTC
 		eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
         bool deserialize(eprosima::fastdds::rtps::SerializedPayload_t& payload, void* data) override;
         //std::function<uint32_t()> getSerializedSizeProvider(void* data) override;
-        bool getKey(const void* const data, 
-		eprosima::fastdds::rtps::InstanceHandle_t *ihandle, 
+//        bool getKey(const void* const data, 
+//		eprosima::fastdds::rtps::InstanceHandle_t *ihandle, 
+//		bool force_md5 = false) override;
+	bool compute_key(const void* const data,
+		eprosima::fastdds::rtps::InstanceHandle_t& ihandle,
+		bool force_md5 = false) override;
+	bool compute_key(eprosima::fastdds::rtps::SerializedPayload_t& payload,
+		eprosima::fastdds::rtps::InstanceHandle_t& ihandle,
 		bool force_md5 = false) override;
         void* createData() override;
         void deleteData(void* data) override;

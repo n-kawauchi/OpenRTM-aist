@@ -191,33 +191,42 @@ namespace RTC
     void CORBACdrDataPubSubType::deleteData(void* data) {
         delete static_cast<RTC::ByteData*>(data);
     }
-    //bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
-    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastdds::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
-        if(!m_isGetKeyDefined)
-            return false;
-        if (m_keyBuffer == nullptr)
-        {
-            return false;
-        }
-        eprosima::fastcdr::FastBuffer fastbuffer((char*)m_keyBuffer,CORBACdrData::getKeyMaxCdrSerializedSize()); // Object that manages the raw buffer.
-        eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS); // Object that serializes the data.
-        
-        if(CORBACdrData::getKeyMaxCdrSerializedSize()>16){
-            m_md5.init();
-            m_md5.update(m_keyBuffer,(unsigned int)ser.get_serialized_data_length());
-            m_md5.finalize();
-            for(uint8_t i = 0;i<16;++i)    {
-                handle->value[i] = m_md5.digest[i];
-            }
-        }
-        else    {
-            for(uint8_t i = 0;i<16;++i)    {
-                handle->value[i] = m_keyBuffer[i];
-            }
-        }
-        return true;
+//    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
+//        if(!m_isGetKeyDefined)
+//            return false;
+//        if (m_keyBuffer == nullptr)
+//        {
+//            return false;
+//        }
+//        eprosima::fastcdr::FastBuffer fastbuffer((char*)m_keyBuffer,CORBACdrData::getKeyMaxCdrSerializedSize()); // Object that manages the raw buffer.
+//        eprosima::fastcdr::Cdr ser(fastbuffer, eprosima::fastcdr::Cdr::BIG_ENDIANNESS); // Object that serializes the data.
+//        
+//        if(CORBACdrData::getKeyMaxCdrSerializedSize()>16){
+//            m_md5.init();
+//            m_md5.update(m_keyBuffer,(unsigned int)ser.get_serialized_data_length());
+//            m_md5.finalize();
+//            for(uint8_t i = 0;i<16;++i)    {
+//                handle->value[i] = m_md5.digest[i];
+//            }
+//        }
+//        else    {
+//            for(uint8_t i = 0;i<16;++i)    {
+//                handle->value[i] = m_keyBuffer[i];
+//            }
+//        }
+//        return true;
+//    }
+
+    bool CORBACdrDataPubSubType::compute_key(const void* const /*data*/,eprosima::fastdds::rtps::InstanceHandle_t& /*handle*/,bool /*force_md5*/) 
+    {
+        return false;
     }
 
+    bool CORBACdrDataPubSubType::compute_key(eprosima::fastdds::rtps::SerializedPayload_t& /*payload*/,
+		    eprosima::fastdds::rtps::InstanceHandle_t& /*handle*/,bool /*force_md5*/) 
+    {
+        return false;
+    }
 
 } //End of namespace RTC
 
