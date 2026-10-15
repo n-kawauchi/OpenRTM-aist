@@ -27,7 +27,8 @@
 #pragma warning(push)
 #pragma warning(disable:4819)
 #endif
-#include <fastdds/dds/domain/DomainParticipant.hpp>
+//#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/qos/DomainParticipantQos.hpp>
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #pragma warning(pop)
 #endif
@@ -269,7 +270,7 @@ namespace RTC
          * @endif
          */
 	//static void setParticipantSecParam(coil::Properties& prop, eprosima::fastrtps::ParticipantAttributes &PParam);
-        static void setParticipantSecParam(coil::Properties& prop, eprosima::fastdds::dds::ParticipantAttributes &PParam);
+        static void setParticipantSecParam(coil::Properties& prop, eprosima::fastdds::dds::DomainParticipantQos &PParam);
         static FastDDSManager* manager;
         static std::mutex mutex;
         eprosima::fastdds::dds::DomainParticipant *m_participant;

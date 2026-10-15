@@ -66,8 +66,10 @@ namespace RTC
 	bool compute_key(eprosima::fastdds::rtps::SerializedPayload_t& payload,
 		eprosima::fastdds::rtps::InstanceHandle_t& ihandle,
 		bool force_md5 = false) override;
-        void* createData() override;
-        void deleteData(void* data) override;
+//        void* createData() override;
+	void* create_data() override;
+//        void deleteData(void* data) override;
+	void delete_data(void* data) override;
     private:
         eprosima::fastdds::MD5 m_md5;
         unsigned char* m_keyBuffer;

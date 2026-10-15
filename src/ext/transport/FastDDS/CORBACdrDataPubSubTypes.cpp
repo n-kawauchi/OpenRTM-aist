@@ -47,9 +47,12 @@ namespace RTC
 
     void CORBACdrDataPubSubType::init(std::string name, bool header_enable) {
         setName(name.c_str());
-        m_typeSize = (uint32_t)CORBACdrData::getMaxCdrSerializedSize() + 4 /*encapsulation*/;
-        m_isGetKeyDefined = CORBACdrData::isKeyDefined();
-        m_keyBuffer = new unsigned char[std::max(CORBACdrData::getKeyMaxCdrSerializedSize(), (size_t)16)];
+        //m_typeSize = (uint32_t)CORBACdrData::getMaxCdrSerializedSize() + 4 /*encapsulation*/;
+	max_serialized_type_size = static_cast<uint32_t>(CORBACdrData::getMaxCdrSerializedSize()) + 4;
+        //m_isGetKeyDefined = CORBACdrData::isKeyDefined();
+        is_compute_key_provided = CORBACdrData::isKeyDefined();
+        //m_keyBuffer = new unsigned char[std::max(CORBACdrData::getKeyMaxCdrSerializedSize(), (size_t)16)];
+        m_keyBuffer = new unsigned char[std::max(CORBACdrData::getKeyMaxCdrSerializedSize(), static_cast<size_t>(16))]();
         m_header_enable = header_enable;
     }
 
@@ -184,13 +187,22 @@ namespace RTC
     //    };
     //}
 
-    void* CORBACdrDataPubSubType::createData() {
-        return (void*)new RTC::ByteData();
+//    void* CORBACdrDataPubSubType::createData() {
+//        return (void*)new RTC::ByteData();
+//    }
+    void* CORBACdrDataPubSubType::create_data()
+    {
+        return new RTC::ByteData();
     }
 
-    void CORBACdrDataPubSubType::deleteData(void* data) {
+//    void CORBACdrDataPubSubType::deleteData(void* data) {
+//        delete static_cast<RTC::ByteData*>(data);
+//    }
+    void CORBACdrDataPubSubType::delete_data(void* data)
+    {
         delete static_cast<RTC::ByteData*>(data);
     }
+
 //    bool CORBACdrDataPubSubType::getKey(void * /*data*/, eprosima::fastrtps::rtps::InstanceHandle_t* handle, bool /*force_md5*/) {
 //        if(!m_isGetKeyDefined)
 //            return false;
@@ -219,7 +231,20 @@ namespace RTC
 
     bool CORBACdrDataPubSubType::compute_key(const void* const /*data*/,eprosima::fastdds::rtps::InstanceHandle_t& /*handle*/,bool /*force_md5*/) 
     {
-        return false;
+        if (!is_compute_key_provided || data == nullptr)
+            return false;
+
+        // dataを実際のキー付きデータ型として扱い、
+        // serializeKey()でキーをCDR形式へシリアライズする。
+        //
+        // キーのシリアライズ結果が16バイトを超える場合、
+        // またはforce_md5がtrueの場合はMD5を計算。
+        //
+        // それ以外は16バイトのInstanceHandle_tへ格納。
+        //
+        // ※キーの実際の構造に応じた実装が必要。
+	
+	return false;
     }
 
     bool CORBACdrDataPubSubType::compute_key(eprosima::fastdds::rtps::SerializedPayload_t& /*payload*/,

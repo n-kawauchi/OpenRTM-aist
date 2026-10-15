@@ -384,14 +384,16 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSInPort::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
+  //void FastDDSInPort::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
+  void FastDDSInPort::SubListener::onNewDataMessage(eprosima::fastdds::dds::DataReader* sub)
   {
     RTC_PARANOID(("onNewDataMessage()"));
 
     RTC_PARANOID(("takeNextData"));
     if(sub->takeNextData(&m_data, &m_info))
     {
-      if(m_info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+      //if(m_info.sampleKind == eprosima::fastrtps::rtps::ALIVE)
+      if(m_info.sampleKind == eprosima::fastdds::rtps::ALIVE)
       {
           m_provider->put(m_data);
       }
@@ -447,10 +449,10 @@ namespace RTC
 
   /*!
    * @if jp
-   * @brief プロパティからfastrtps::Duration_tを設定する
+   * @brief プロパティからfastdds::dds::Duration_tを設定する
    *
    * @param prop プロパティ(seconds、nanosecの要素に値を格納する)
-   * @param time fastrtps::Duration_t
+   * @param time fastdds::dds::Duration_t
    *
    * @else
    * @brief
@@ -469,7 +471,8 @@ namespace RTC
 
     if (sec_str == "2147483647" && nanosec_str == "4294967295")
     {
-      time = eprosima::fastrtps::c_TimeInfinite;
+      //time = eprosima::fastrtps::c_TimeInfinite;
+      time = eprosima::fastdds::dds::c_TimeInfinite;
       return;
     }
     else if (sec_str == "0" && nanosec_str == "0")
@@ -499,140 +502,141 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSInPort::setSubParam(coil::Properties& fastrtps_prop, eprosima::fastrtps::SubscriberAttributes* Rparam)
+  //void FastDDSInPort::setSubParam(coil::Properties& fastdds_prop, eprosima::fastrtps::SubscriberAttributes* Rparam)
+  void FastDDSInPort::setSubParam(coil::Properties& fastdds_prop, eprosima::fastdds::dds::DataReaderQos& Rparam)
   {
-    setDuration(fastrtps_prop.getNode("subscriber.qos.deadline.period"), Rparam->qos.m_deadline.period);
+    setDuration(fastdds_prop.getNode("subscriber.qos.deadline.period"), Rparam->qos.m_deadline.period);
 
-    std::string destinationOrder_kind = fastrtps_prop.getProperty("subscriber.qos.destinationOrder.kind", "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS");
+    std::string destinationOrder_kind = fastdds_prop.getProperty("subscriber.qos.destinationOrder.kind", "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS");
 
     if (destinationOrder_kind == "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Rparam->qos.m_destinationOrder.kind = eprosima::fastrtps::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
+      Rparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
     }
     else if (destinationOrder_kind == "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Rparam->qos.m_destinationOrder.kind = eprosima::fastrtps::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
+      Rparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
     }
 
     Rparam->qos.m_disablePositiveACKs.enabled = coil::toBool(fastrtps_prop["subscriber.qos.disablePositiveACKs.enabled"], "YES", "NO", Rparam->qos.m_disablePositiveACKs.enabled);
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.disablePositiveACKs.duration"), Rparam->qos.m_disablePositiveACKs.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.disablePositiveACKs.duration"), Rparam->qos.m_disablePositiveACKs.duration);
 
-    std::string durability_kind = fastrtps_prop.getProperty("subscriber.qos.durability.kind", "VOLATILE_DURABILITY_QOS");
+    std::string durability_kind = fastdds_prop.getProperty("subscriber.qos.durability.kind", "VOLATILE_DURABILITY_QOS");
 
     if (durability_kind == "VOLATILE_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
+      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_LOCAL_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastrtps::TRANSIENT_LOCAL_DURABILITY_QOS;
+      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastrtps::TRANSIENT_DURABILITY_QOS;
+      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_DURABILITY_QOS;
     }
     else if (durability_kind == "PERSISTENT_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastrtps::PERSISTENT_DURABILITY_QOS;
+      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::PERSISTENT_DURABILITY_QOS;
     }
 
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.history_depth, fastrtps_prop["subscriber.qos.durabilityService.history_depth"].c_str());
+    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.history_depth, fastdds_prop["subscriber.qos.durabilityService.history_depth"].c_str());
 
 
-    std::string durabilityService_history_kind = fastrtps_prop.getProperty("subscriber.qos.durabilityService.history_kind", "KEEP_LAST_HISTORY_QOS");
+    std::string durabilityService_history_kind = fastdds_prop.getProperty("subscriber.qos.durabilityService.history_kind", "KEEP_LAST_HISTORY_QOS");
 
     if (durabilityService_history_kind == "KEEP_LAST_HISTORY_QOS")
     {
-      Rparam->qos.m_durabilityService.history_kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+      Rparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     }
     else if (durabilityService_history_kind == "KEEP_ALL_HISTORY_QOS")
     {
-      Rparam->qos.m_durabilityService.history_kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+      Rparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
     }
 
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_instances, fastrtps_prop["subscriber.qos.durabilityService.max_instances"].c_str());
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples, fastrtps_prop["subscriber.qos.durabilityService.max_samples"].c_str());
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples_per_instance, fastrtps_prop["subscriber.qos.durabilityService.max_samples_per_instance"].c_str());
+    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_instances, fastdds_prop["subscriber.qos.durabilityService.max_instances"].c_str());
+    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples, fastdds_prop["subscriber.qos.durabilityService.max_samples"].c_str());
+    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples_per_instance, fastdds_prop["subscriber.qos.durabilityService.max_samples_per_instance"].c_str());
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.durabilityService.service_cleanup_delay"), Rparam->qos.m_durabilityService.service_cleanup_delay);
+    setDuration(fastdds_prop.getNode("subscriber.qos.durabilityService.service_cleanup_delay"), Rparam->qos.m_durabilityService.service_cleanup_delay);
 
 
 
     //Rparam->qos.m_groupData
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.latencyBudget.duration"), Rparam->qos.m_latencyBudget.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.latencyBudget.duration"), Rparam->qos.m_latencyBudget.duration);
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.lifespan.duration"), Rparam->qos.m_lifespan.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.lifespan.duration"), Rparam->qos.m_lifespan.duration);
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.liveliness.announcement_period"), Rparam->qos.m_liveliness.announcement_period);
+    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.announcement_period"), Rparam->qos.m_liveliness.announcement_period);
 
-    std::string liveliness_kind = fastrtps_prop.getProperty("subscriber.qos.liveliness.kind", "AUTOMATIC_LIVELINESS_QOS");
+    std::string liveliness_kind = fastdds_prop.getProperty("subscriber.qos.liveliness.kind", "AUTOMATIC_LIVELINESS_QOS");
 
     if (liveliness_kind == "AUTOMATIC_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
+      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastrtps::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
+      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_TOPIC_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastrtps::MANUAL_BY_TOPIC_LIVELINESS_QOS;
+      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS;
     }
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.liveliness.lease_duration"), Rparam->qos.m_liveliness.lease_duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.lease_duration"), Rparam->qos.m_liveliness.lease_duration);
 
 
-    std::string ownership_kind = fastrtps_prop.getProperty("subscriber.qos.ownership.kind", "SHARED_OWNERSHIP_QOS");
+    std::string ownership_kind = fastdds_prop.getProperty("subscriber.qos.ownership.kind", "SHARED_OWNERSHIP_QOS");
 
     if (ownership_kind == "SHARED_OWNERSHIP_QOS")
     {
-      Rparam->qos.m_ownership.kind = eprosima::fastrtps::SHARED_OWNERSHIP_QOS;
+      Rparam->qos.m_ownership.kind = eprosima::fastdds::dds::SHARED_OWNERSHIP_QOS;
     }
     else if (ownership_kind == "EXCLUSIVE_OWNERSHIP_QOS")
     {
-      Rparam->qos.m_ownership.kind = eprosima::fastrtps::EXCLUSIVE_OWNERSHIP_QOS;
+      Rparam->qos.m_ownership.kind = eprosima::fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS;
     }
 
 
     //Rparam->qos.m_partition
 
 
-    std::string presentation_access_scope = fastrtps_prop.getProperty("subscriber.qos.presentation.access_scope", "INSTANCE_PRESENTATION_QOS");
+    std::string presentation_access_scope = fastdds_prop.getProperty("subscriber.qos.presentation.access_scope", "INSTANCE_PRESENTATION_QOS");
 
     if (presentation_access_scope == "INSTANCE_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastrtps::INSTANCE_PRESENTATION_QOS;
+      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::INSTANCE_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "TOPIC_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastrtps::TOPIC_PRESENTATION_QOS;
+      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::TOPIC_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "GROUP_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastrtps::GROUP_PRESENTATION_QOS;
+      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::GROUP_PRESENTATION_QOS;
     }
 
-    Rparam->qos.m_presentation.coherent_access = coil::toBool(fastrtps_prop["subscriber.qos.presentation.coherent_access"], "YES", "NO", Rparam->qos.m_presentation.coherent_access);
-    Rparam->qos.m_presentation.ordered_access = coil::toBool(fastrtps_prop["subscriber.qos.presentation.ordered_access"], "YES", "NO", Rparam->qos.m_presentation.ordered_access);
+    Rparam->qos.m_presentation.coherent_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.coherent_access"], "YES", "NO", Rparam->qos.m_presentation.coherent_access);
+    Rparam->qos.m_presentation.ordered_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.ordered_access"], "YES", "NO", Rparam->qos.m_presentation.ordered_access);
 
-    std::string reliability_kind = fastrtps_prop.getProperty("subscriber.qos.reliability.kind", "BEST_EFFORT_RELIABILITY_QOS");
+    std::string reliability_kind = fastdds_prop.getProperty("subscriber.qos.reliability.kind", "BEST_EFFORT_RELIABILITY_QOS");
 
     if (reliability_kind == "BEST_EFFORT_RELIABILITY_QOS")
     {
-      Rparam->qos.m_reliability.kind = eprosima::fastrtps::BEST_EFFORT_RELIABILITY_QOS;
+      Rparam->qos.m_reliability.kind = eprosima::fastdds::dds::BEST_EFFORT_RELIABILITY_QOS;
     }
     else if (reliability_kind == "RELIABLE_RELIABILITY_QOS")
     {
-      Rparam->qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+      Rparam->qos.m_reliability.kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
     }
 
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.reliability.max_blocking_time"), Rparam->qos.m_reliability.max_blocking_time);
+    setDuration(fastdds_prop.getNode("subscriber.qos.reliability.max_blocking_time"), Rparam->qos.m_reliability.max_blocking_time);
 
-    setDuration(fastrtps_prop.getNode("subscriber.qos.timeBasedFilter.minimum_separation"), Rparam->qos.m_timeBasedFilter.minimum_separation);
+    setDuration(fastdds_prop.getNode("subscriber.qos.timeBasedFilter.minimum_separation"), Rparam->qos.m_timeBasedFilter.minimum_separation);
 
 
     //Rparam->qos.m_topicData
@@ -651,7 +655,7 @@ namespace RTC
     //Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastrtps_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
     Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
 
-    std::string type_consistency_kind = fastrtps_prop.getProperty("subscriber.qos.type_consistency.kind", "ALLOW_TYPE_COERCION");
+    std::string type_consistency_kind = fastdds_prop.getProperty("subscriber.qos.type_consistency.kind", "ALLOW_TYPE_COERCION");
 
     if (type_consistency_kind == "DISALLOW_TYPE_COERCION")
     {

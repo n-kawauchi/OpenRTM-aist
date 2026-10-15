@@ -33,6 +33,7 @@
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/dds/core/status/SubscriptionMatchedStatus.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
@@ -522,7 +523,7 @@ namespace RTC
        * @endif
        */
       //void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info) override;
-      void onSubscriptionMatched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
+      void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
       /*!
        * @if jp
        * @brief
@@ -540,10 +541,10 @@ namespace RTC
        * @endif
        */
       //void onNewDataMessage(eprosima::fastrtps::Subscriber* sub) override;
-      void onNewDataMessage(eprosima::fastdds::dds::DataReader* sub) override;
+      void on_data_available(eprosima::fastdds::dds::DataReader* sub) override;
     private:
       //eprosima::fastrtps::SampleInfo_t m_info;
-      eprosima::fastdds::dds::SampleInfo_t m_info;
+      eprosima::fastdds::dds::SampleInfo m_info;
       mutable Logger rtclog;
       FastDDSInPort* m_provider;
       RTC::ByteData m_data;
