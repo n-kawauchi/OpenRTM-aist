@@ -30,9 +30,8 @@
 #pragma warning(push)
 #pragma warning(disable:4819)
 #endif
-#include <fastdds/dds/subscriber/Subscriber.hpp>
-#include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
+#include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/core/status/SubscriptionMatchedStatus.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
@@ -523,7 +522,7 @@ namespace RTC
        * @endif
        */
       //void onSubscriptionMatched(eprosima::fastrtps::Subscriber* sub, eprosima::fastrtps::rtps::MatchingInfo& info) override;
-      void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, eprosima::fastdds::dds::PublicationMatchedStatus& info) override;
+      void on_subscription_matched(eprosima::fastdds::dds::DataReader* sub, const eprosima::fastdds::dds::SubscriptionMatchedStatus& info) override;
       /*!
        * @if jp
        * @brief

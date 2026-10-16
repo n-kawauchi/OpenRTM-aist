@@ -365,7 +365,8 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSInPort::SubListener::onSubscriptionMatched(eprosima::fastrtps::Subscriber* /*sub*/, eprosima::fastrtps::rtps::MatchingInfo& /*info*/)
+  //void FastDDSInPort::SubListener::onSubscriptionMatched(eprosima::fastrtps::Subscriber* /*sub*/, eprosima::fastrtps::rtps::MatchingInfo& /*info*/)
+  void FastDDSInPort::SubListener::on_subscription_matched(eprosima::fastdds::dds::DataReader* /*sub*/, const eprosima::fasdds::dds::SubscriptionMatchedStatus& /*info*/)
   {
   }
   /*!
@@ -385,7 +386,7 @@ namespace RTC
    * @endif
    */
   //void FastDDSInPort::SubListener::onNewDataMessage(eprosima::fastrtps::Subscriber* sub)
-  void FastDDSInPort::SubListener::onNewDataMessage(eprosima::fastdds::dds::DataReader* sub)
+  void FastDDSInPort::SubListener::on_data_available(eprosima::fastdds::dds::DataReader* sub)
   {
     RTC_PARANOID(("onNewDataMessage()"));
 

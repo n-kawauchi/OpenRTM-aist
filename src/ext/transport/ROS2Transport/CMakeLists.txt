@@ -17,7 +17,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(fastcdr REQUIRED)
 if(FASTDDS_ENABLE)
-	find_package(fastdds REQUIRED)
+	find_package(fastdds REQUIRED CONFIG)
 else()
 	find_package(fastrtps REQUIRED)
 endif()
@@ -97,7 +97,11 @@ else()
 					PUBLIC ${std_msgs_INCLUDE_DIRS}
 					PUBLIC ${geometry_msgs_INCLUDE_DIRS}
 					PUBLIC ${sensor_msgs_INCLUDE_DIRS})
-	target_link_libraries(${target} PRIVATE ${libs} ${RTM_LINKER_OPTION})
+	if(FASTDDS_ENABLE)
+		target_link_libraries(${target} PRIVATE ${libs} ${RTM_LINKER_OPTION} fastdds)
+	else()
+		target_link_libraries(${target} PRIVATE ${libs} ${RTM_LINKER_OPTION})
+	endif()
 	target_compile_definitions(${target} PRIVATE STD_MSGS_VERSION_MAJOR=${std_msgs_VERSION_MAJOR} 
 								GEOMETORY_MSGS_VERSION_MAJOR=${geometry_msgs_VERSION_MAJOR} 
 								SENSOR_MSGS_VERSION_MAJOR=${sensor_msgs_VERSION_MAJOR} 
