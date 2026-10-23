@@ -16,10 +16,12 @@
  *
  */
 
-#ifndef RTC_FASTRTPSINPORT_H
-#define RTC_FASTRTPSINPORT_H
+#ifndef RTC_FASTDDSINPORT_H
+#define RTC_FASTDDSINPORT_H
 
 #include <map>
+#include <mutex>
+#include <string>
 #include <rtm/BufferBase.h>
 #include <rtm/InPortProvider.h>
 #include <rtm/CORBA_SeqUtil.h>
@@ -30,8 +32,12 @@
 #pragma warning(push)
 #pragma warning(disable:4819)
 #endif
-#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/subscriber/DataReader.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/subscriber/SampleInfo.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/dds/core/status/SubscriptionMatchedStatus.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #pragma warning(pop)
@@ -552,5 +558,5 @@ namespace RTC
 
 
 
-#endif // RTC_FASTRTPSINPORT_H
+#endif // RTC_FASTDDSINPORT_H
 

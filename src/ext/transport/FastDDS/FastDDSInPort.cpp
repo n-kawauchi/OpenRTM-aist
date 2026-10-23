@@ -23,21 +23,16 @@
 #endif
 
 #include "FastDDSInPort.h"
-#include <coil/UUID.h>
-#include <fastdds/dds/domain/DomainParticipant.hpp>
-#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
-#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
-#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
-#include <fastdds/dds/topic/TopicDataType.hpp>
-#include <fastdds/dds/topic/TypeSupport.hpp>
 #include "FastDDSManager.h"
 #include "FastDDSMessageInfo.h"
-
-
-
-
-
-
+#include <coil/UUID.h>
+#include <fastdds/dds/domain/DomainParticipant.hpp>
+#include <fastdds/dds/domain/DomainParticipantFactory.hpp>
+#include <fastdds/dds/subscriber/Subscriber.hpp>
+#include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
+#include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <stdexcept>
+#include <vector>
 
 
 namespace RTC
@@ -439,7 +434,7 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSInPort::SubListener::on_subscription_matched(eprosima::fastdds::dds::DataReader* /*sub*/, const eprosima::fasdds::dds::SubscriptionMatchedStatus& /*info*/)
+  void FastDDSInPort::SubListener::on_subscription_matched(eprosima::fastdds::dds::DataReader* /*sub*/, const eprosima::fastdds::dds::SubscriptionMatchedStatus& /*info*/)
   {
   }
   /*!
@@ -462,10 +457,10 @@ namespace RTC
   {
     RTC_PARANOID(("onNewDataMessage()"));
 
-    RTC_PARANOID(("takeNextData"));
-    if(sub->takeNextData(&m_data, &m_info))
+    RTC_PARANOID(("take_next_sample"));
+    if(sub->take_next_sample(&m_data, &m_info))
     {
-      if(m_info.sampleKind == eprosima::fastdds::rtps::ALIVE)
+      if(m_info.valid_data == eprosima::fastdds::rtps::ALIVE)
       {
           m_provider->put(m_data);
       }
