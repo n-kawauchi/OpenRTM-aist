@@ -211,6 +211,21 @@ namespace RTC
         return false;
     }
 
+    uint32_t CORBACdrDataPubSubType::calculate_serialized_size(const void* data,
+		    eprosima::fastdds::dds::DataRepresentationId_t data_representation)
+    {
+        (void)data_representation;
+
+        if (data == nullptr)
+        {
+            return 0;
+        }
+
+        const auto* p_type = static_cast<const RTC::ByteData*>(data);
+
+        // CDRヘッダーを付けない場合は4バイトのencapsulationを追加
+        return static_cast<uint32_t>(p_type->getDataLength() + (m_header_enable ? 0 : 4));
+    }
 } //End of namespace RTC
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)

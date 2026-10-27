@@ -64,6 +64,8 @@ namespace RTC
 		bool force_md5 = false) override;
 	void* create_data() override;
 	void delete_data(void* data) override;
+	uint32_t calculate_serialized_size(const void* data,
+		eprosima::fastdds::dds::DataRepresentationId_t data_representation) override;
     private:
         eprosima::fastdds::MD5 m_md5;
         unsigned char* m_keyBuffer;

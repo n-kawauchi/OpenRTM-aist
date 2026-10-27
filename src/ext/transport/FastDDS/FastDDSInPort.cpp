@@ -31,6 +31,7 @@
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 #include <fastdds/dds/subscriber/qos/SubscriberQos.hpp>
 #include <fastdds/dds/subscriber/qos/DataReaderQos.hpp>
+#include <fastdds/rtps/common/ChangeKind_t.hpp>
 #include <stdexcept>
 #include <vector>
 
@@ -77,7 +78,7 @@ namespace RTC
     if (m_subscriber != nullptr)
     {
       if (participant->delete_subscriber(m_subscriber)
-            == eprosima::fastdds::dds::ReturnCode_t::RETCODE_OK)
+            == eprosima::fastdds::dds::RETCODE_OK)
       {
         m_subscriber = nullptr;
       }
@@ -91,7 +92,7 @@ namespace RTC
     if (m_dds_topic != nullptr)
     {
       if (participant->delete_topic(m_dds_topic)
-		      == eprosima::fastdds::dds::ReturnCode_t::RETCODE_OK)
+		      == eprosima::fastdds::dds::RETCODE_OK)
       {
         m_dds_topic = nullptr;
       }
@@ -246,15 +247,29 @@ namespace RTC
         RTC_INFO(("DataReader QoS profile: %s",
                   subscriber_name.c_str()));
 
-        auto ret =
-            DomainParticipantFactory::get_instance()
-                ->get_datareader_qos_from_xml(
-                    subscriber_name, Rparam);
+        DataReaderQos Rparam = DATAREADER_QOS_DEFAULT;
+	std::string subscriber_name = fastdds_prop.getProperty("subscriber.name");
 
-        if (ret != eprosima::fastdds::dds::ReturnCode_t::RETCODE_OK)
+        // Subscriberを先に生成
+        m_subscriber = participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT);
+        if (m_subscriber == nullptr)
         {
-            RTC_ERROR(("Failed to load DataReader QoS"));
-            throw std::runtime_error("DataReader QoS error");
+            RTC_ERROR(("Failed to create Subscriber"));
+            throw std::runtime_error("Subscriber creation failed");
+        }
+
+        if (subscriber_name.empty() || !topicmgr.xmlConfigured())
+        {
+            setSubParam(fastdds_prop, Rparam);
+        }
+        else
+        {
+            auto ret = m_subscriber->get_datareader_qos_from_profile(subscriber_name, Rparam);
+            if (ret != eprosima::fastdds::dds::RETCODE_OK)
+            {
+                RTC_ERROR(("Failed to load DataReader QoS"));
+                throw std::runtime_error("DataReader QoS error");
+            }
         }
     }
 
@@ -542,7 +557,7 @@ namespace RTC
     }
     else if (sec_str == "0" && nanosec_str == "0")
     {
-      time = eprosima::fastrtps::c_TimeZero;
+      time = eprosima::fastdds::dds::c_TimeZero;
       return;
     }
 
@@ -582,7 +597,7 @@ namespace RTC
       Rparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
     }
 
-    Rparam->qos.m_disablePositiveACKs.enabled = coil::toBool(fastrtps_prop["subscriber.qos.disablePositiveACKs.enabled"], "YES", "NO", Rparam->qos.m_disablePositiveACKs.enabled);
+    Rparam->qos.m_disablePositiveACKs.enabled = coil::toBool(fastdds_prop["subscriber.qos.disablePositiveACKs.enabled"], "YES", "NO", Rparam->qos.m_disablePositiveACKs.enabled);
 
     setDuration(fastdds_prop.getNode("subscriber.qos.disablePositiveACKs.duration"), Rparam->qos.m_disablePositiveACKs.duration);
 
@@ -776,7 +791,7 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSInPort::outputLog(const eprosima::fastrtps::SubscriberAttributes* Rparam)
+  void FastDDSInPort::outputLog(const eprosima::fastdds::dds::DataReaderQos& Rparam)
   {
     RTC_DEBUG(("ReaderQos setting: subscriber.deadline.period: sec=%d nanosec=%u", Rparam->qos.m_deadline.period.seconds, Rparam->qos.m_deadline.period.nanosec));
     RTC_DEBUG(("ReaderQos setting: subscriber.destinationOrder.kind: %hhu", Rparam->qos.m_destinationOrder.kind));
