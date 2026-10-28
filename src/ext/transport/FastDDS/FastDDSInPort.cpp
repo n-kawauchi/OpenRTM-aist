@@ -232,48 +232,12 @@ namespace RTC
         }
     }
 
+    using namespace eprosima::fastdds::dds;
     // DataReader QoS設定
     DataReaderQos Rparam = DATAREADER_QOS_DEFAULT;
 
     std::string subscriber_name =
         fastdds_prop.getProperty("subscriber.name");
-
-    if (subscriber_name.empty() || !topicmgr.xmlConfigured())
-    {
-        setSubParam(fastdds_prop, Rparam);
-    }
-    else
-    {
-        RTC_INFO(("DataReader QoS profile: %s",
-                  subscriber_name.c_str()));
-
-        DataReaderQos Rparam = DATAREADER_QOS_DEFAULT;
-	std::string subscriber_name = fastdds_prop.getProperty("subscriber.name");
-
-        // Subscriberを先に生成
-        m_subscriber = participant->create_subscriber(SUBSCRIBER_QOS_DEFAULT);
-        if (m_subscriber == nullptr)
-        {
-            RTC_ERROR(("Failed to create Subscriber"));
-            throw std::runtime_error("Subscriber creation failed");
-        }
-
-        if (subscriber_name.empty() || !topicmgr.xmlConfigured())
-        {
-            setSubParam(fastdds_prop, Rparam);
-        }
-        else
-        {
-            auto ret = m_subscriber->get_datareader_qos_from_profile(subscriber_name, Rparam);
-            if (ret != eprosima::fastdds::dds::RETCODE_OK)
-            {
-                RTC_ERROR(("Failed to load DataReader QoS"));
-                throw std::runtime_error("DataReader QoS error");
-            }
-        }
-    }
-
-    outputLog(Rparam);
 
     // Topic生成
     m_dds_topic = participant->create_topic(
@@ -300,6 +264,28 @@ namespace RTC
         RTC_ERROR(("Failed to create Subscriber"));
         throw std::runtime_error("Subscriber creation failed");
     }
+
+    // QoS設定
+    if (subscriber_name.empty() || !topicmgr.xmlConfigured())
+    {
+        setSubParam(fastdds_prop, Rparam);
+    }
+    else
+    {
+        RTC_INFO(("DataReader QoS profile: %s",
+                  subscriber_name.c_str()));
+        auto ret = m_subscriber->get_datareader_qos_from_profile(subscriber_name, Rparam);
+        if (ret != eprosima::fastdds::dds::RETCODE_OK)
+        {
+            participant->delete_subscriber(m_subscriber);
+            m_subscriber = nullptr;
+            participant->delete_topic(m_dds_topic);
+            m_dds_topic = nullptr;	    
+            throw std::runtime_error("DataReader QoS error");
+        }
+    }
+
+    outputLog(Rparam);
 
     // DataReader生成
     m_reader = m_subscriber->create_datareader(
@@ -584,99 +570,99 @@ namespace RTC
    */
   void FastDDSInPort::setSubParam(coil::Properties& fastdds_prop, eprosima::fastdds::dds::DataReaderQos& Rparam)
   {
-    setDuration(fastdds_prop.getNode("subscriber.qos.deadline.period"), Rparam->qos.m_deadline.period);
+    setDuration(fastdds_prop.getNode("subscriber.qos.deadline.period"), Rparam.deadline().period);
 
     std::string destinationOrder_kind = fastdds_prop.getProperty("subscriber.qos.destinationOrder.kind", "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS");
 
     if (destinationOrder_kind == "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Rparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
+      Rparam.destination_order().kind = eprosima::fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
     }
     else if (destinationOrder_kind == "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Rparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
+      Rparam.destination_order().kind = eprosima::fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
     }
 
-    Rparam->qos.m_disablePositiveACKs.enabled = coil::toBool(fastdds_prop["subscriber.qos.disablePositiveACKs.enabled"], "YES", "NO", Rparam->qos.m_disablePositiveACKs.enabled);
+    Rparam.reliable_reader_qos().disable_positive_acks.enabled = coil::toBool(fastdds_prop["subscriber.qos.disablePositiveACKs.enabled"], "YES", "NO", Rparam.reliable_reader_qos().disable_positive_acks.enabled);
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.disablePositiveACKs.duration"), Rparam->qos.m_disablePositiveACKs.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.disablePositiveACKs.duration"), Rparam.reliable_reader_qos().disable_positive_acks.duration);
 
     std::string durability_kind = fastdds_prop.getProperty("subscriber.qos.durability.kind", "VOLATILE_DURABILITY_QOS");
 
     if (durability_kind == "VOLATILE_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
+      Rparam.durability().kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_LOCAL_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
+      Rparam.durability().kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_DURABILITY_QOS;
+      Rparam.durability().kind = eprosima::fastdds::dds::TRANSIENT_DURABILITY_QOS;
     }
     else if (durability_kind == "PERSISTENT_DURABILITY_QOS")
     {
-      Rparam->qos.m_durability.kind = eprosima::fastdds::dds::PERSISTENT_DURABILITY_QOS;
+      Rparam.durability().kind = eprosima::fastdds::dds::PERSISTENT_DURABILITY_QOS;
     }
 
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.history_depth, fastdds_prop["subscriber.qos.durabilityService.history_depth"].c_str());
+    coil::stringTo<int32_t>(Rparam.durability_service().history_depth, fastdds_prop["subscriber.qos.durabilityService.history_depth"].c_str());
 
 
     std::string durabilityService_history_kind = fastdds_prop.getProperty("subscriber.qos.durabilityService.history_kind", "KEEP_LAST_HISTORY_QOS");
 
     if (durabilityService_history_kind == "KEEP_LAST_HISTORY_QOS")
     {
-      Rparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
+      Rparam.durability_service().history_kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     }
     else if (durabilityService_history_kind == "KEEP_ALL_HISTORY_QOS")
     {
-      Rparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
+      Rparam.durability_service().history_kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
     }
 
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_instances, fastdds_prop["subscriber.qos.durabilityService.max_instances"].c_str());
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples, fastdds_prop["subscriber.qos.durabilityService.max_samples"].c_str());
-    coil::stringTo<int32_t>(Rparam->qos.m_durabilityService.max_samples_per_instance, fastdds_prop["subscriber.qos.durabilityService.max_samples_per_instance"].c_str());
+    coil::stringTo<int32_t>(Rparam.durability_service().max_instances, fastdds_prop["subscriber.qos.durabilityService.max_instances"].c_str());
+    coil::stringTo<int32_t>(Rparam.durability_service().max_samples, fastdds_prop["subscriber.qos.durabilityService.max_samples"].c_str());
+    coil::stringTo<int32_t>(Rparam.durability_service().max_samples_per_instance, fastdds_prop["subscriber.qos.durabilityService.max_samples_per_instance"].c_str());
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.durabilityService.service_cleanup_delay"), Rparam->qos.m_durabilityService.service_cleanup_delay);
+    setDuration(fastdds_prop.getNode("subscriber.qos.durabilityService.service_cleanup_delay"), Rparam.durability_service().service_cleanup_delay);
 
 
 
     //Rparam->qos.m_groupData
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.latencyBudget.duration"), Rparam->qos.m_latencyBudget.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.latencyBudget.duration"), Rparam.latency_budget().duration);
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.lifespan.duration"), Rparam->qos.m_lifespan.duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.lifespan.duration"), Rparam.lifespan().duration);
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.announcement_period"), Rparam->qos.m_liveliness.announcement_period);
+    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.announcement_period"), Rparam.liveliness().announcement_period);
 
     std::string liveliness_kind = fastdds_prop.getProperty("subscriber.qos.liveliness.kind", "AUTOMATIC_LIVELINESS_QOS");
 
     if (liveliness_kind == "AUTOMATIC_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
+      Rparam.liveliness().kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
+      Rparam.liveliness().kind = eprosima::fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_TOPIC_LIVELINESS_QOS")
     {
-      Rparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS;
+      Rparam.liveliness().kind = eprosima::fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS;
     }
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.lease_duration"), Rparam->qos.m_liveliness.lease_duration);
+    setDuration(fastdds_prop.getNode("subscriber.qos.liveliness.lease_duration"), Rparam.liveliness().lease_duration);
 
 
     std::string ownership_kind = fastdds_prop.getProperty("subscriber.qos.ownership.kind", "SHARED_OWNERSHIP_QOS");
 
     if (ownership_kind == "SHARED_OWNERSHIP_QOS")
     {
-      Rparam->qos.m_ownership.kind = eprosima::fastdds::dds::SHARED_OWNERSHIP_QOS;
+      Rparam.ownership().kind = eprosima::fastdds::dds::SHARED_OWNERSHIP_QOS;
     }
     else if (ownership_kind == "EXCLUSIVE_OWNERSHIP_QOS")
     {
-      Rparam->qos.m_ownership.kind = eprosima::fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS;
+      Rparam.ownership().kind = eprosima::fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS;
     }
 
 
@@ -684,96 +670,96 @@ namespace RTC
 
 
     std::string presentation_access_scope = fastdds_prop.getProperty("subscriber.qos.presentation.access_scope", "INSTANCE_PRESENTATION_QOS");
-
+    eprosima::fastdds::dds::SubscriberQos Sqos = eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT;
     if (presentation_access_scope == "INSTANCE_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::INSTANCE_PRESENTATION_QOS;
+      Sqos.presentation().access_scope = eprosima::fastdds::dds::INSTANCE_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "TOPIC_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::TOPIC_PRESENTATION_QOS;
+      Sqos.presentation().access_scope = eprosima::fastdds::dds::TOPIC_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "GROUP_PRESENTATION_QOS")
     {
-      Rparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::GROUP_PRESENTATION_QOS;
+      Sqos.presentation().access_scope = eprosima::fastdds::dds::GROUP_PRESENTATION_QOS;
     }
 
-    Rparam->qos.m_presentation.coherent_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.coherent_access"], "YES", "NO", Rparam->qos.m_presentation.coherent_access);
-    Rparam->qos.m_presentation.ordered_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.ordered_access"], "YES", "NO", Rparam->qos.m_presentation.ordered_access);
+    Sqos.presentation().coherent_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.coherent_access"], "YES", "NO", Sqos.presentation().coherent_access);
+    Sqos.presentation().ordered_access = coil::toBool(fastdds_prop["subscriber.qos.presentation.ordered_access"], "YES", "NO", Sqos.presentation().ordered_access);
 
     std::string reliability_kind = fastdds_prop.getProperty("subscriber.qos.reliability.kind", "BEST_EFFORT_RELIABILITY_QOS");
 
     if (reliability_kind == "BEST_EFFORT_RELIABILITY_QOS")
     {
-      Rparam->qos.m_reliability.kind = eprosima::fastdds::dds::BEST_EFFORT_RELIABILITY_QOS;
+      Rparam.reliability().kind = eprosima::fastdds::dds::BEST_EFFORT_RELIABILITY_QOS;
     }
     else if (reliability_kind == "RELIABLE_RELIABILITY_QOS")
     {
-      Rparam->qos.m_reliability.kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
+      Rparam.reliability().kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
     }
 
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.reliability.max_blocking_time"), Rparam->qos.m_reliability.max_blocking_time);
+    setDuration(fastdds_prop.getNode("subscriber.qos.reliability.max_blocking_time"), Rparam.reliability().max_blocking_time);
 
-    setDuration(fastdds_prop.getNode("subscriber.qos.timeBasedFilter.minimum_separation"), Rparam->qos.m_timeBasedFilter.minimum_separation);
+    setDuration(fastdds_prop.getNode("subscriber.qos.timeBasedFilter.minimum_separation"), Rparam.time_based_filter().minimum_separation);
 
 
     //Rparam->qos.m_topicData
     //Rparam->qos.m_userData
     //Rparam->qos.representation.m_value
 
-    Rparam->qos.type_consistency.m_force_type_validation = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam->qos.type_consistency.m_force_type_validation);
+    Rparam.type_consistency().m_force_type_validation = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.force_type_validation"], "YES", "NO", Rparam.type_consistency().m_force_type_validation);
 
-    Rparam->qos.type_consistency.m_ignore_member_names = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_member_names);
+    Rparam.type_consistency().m_ignore_member_names = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_member_names"], "YES", "NO", Rparam.type_consistency().m_ignore_member_names);
 
-    Rparam->qos.type_consistency.m_ignore_sequence_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_sequence_bounds);
+    Rparam.type_consistency().m_ignore_sequence_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_sequence_bounds"], "YES", "NO", Rparam.type_consistency().m_ignore_sequence_bounds);
 
-    Rparam->qos.type_consistency.m_ignore_string_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam->qos.type_consistency.m_ignore_string_bounds);
+    Rparam.type_consistency().m_ignore_string_bounds = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.ignore_string_bounds"], "YES", "NO", Rparam.type_consistency().m_ignore_string_bounds);
 
     std::string type_consistency_kind = fastdds_prop.getProperty("subscriber.qos.type_consistency.kind", "ALLOW_TYPE_COERCION");
 
     if (type_consistency_kind == "DISALLOW_TYPE_COERCION")
     {
-      Rparam->qos.type_consistency.m_kind
+      Rparam.type_consistency().m_kind
         = eprosima::fastdds::dds::DISALLOW_TYPE_COERCION;
     }
     else if (type_consistency_kind == "ALLOW_TYPE_COERCION")
     {
-      Rparam->qos.type_consistency.m_kind
+      Rparam.type_consistency().m_kind
         = eprosima::fastdds::dds::ALLOW_TYPE_COERCION;
     }
 
-    Rparam->qos.type_consistency.m_prevent_type_widening = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam->qos.type_consistency.m_prevent_type_widening);
+    Rparam.type_consistency().m_prevent_type_widening = coil::toBool(fastdds_prop["subscriber.qos.type_consistency.prevent_type_widening"], "YES", "NO", Rparam.type_consistency().m_prevent_type_widening);
 
 
     std::string history_memory_policy = fastdds_prop.getProperty("subscriber.history_memory_policy", "PREALLOCATED_WITH_REALLOC_MEMORY_MODE");
     if (history_memory_policy == "PREALLOCATED_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_MEMORY_MODE;
+      Rparam.endpoint().history_memory_policy = eprosima::fastdds::rtps::PREALLOCATED_MEMORY_MODE;
     }
     else if (history_memory_policy == "PREALLOCATED_WITH_REALLOC_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+      Rparam.endpoint().history_memory_policy = eprosima::fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
     }
     else if (history_memory_policy == "DYNAMIC_RESERVE_MEMORY_MODE")
     {
-      Rparam->historyMemoryPolicy = eprosima::fastdds::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
+      Rparam.endpoint().history_memory_policy = eprosima::fastdds::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
     }
 
-    coil::stringTo<int32_t>(Rparam->topic.historyQos.depth, fastdds_prop["subscriber.topic.historyQos.depth"].c_str());
+    coil::stringTo<int32_t>(Rparam.history().depth, fastdds_prop["subscriber.topic.historyQos.depth"].c_str());
 
     std::string topic_historyQos_kind = fastdds_prop.getProperty("subscriber.topic.historyQos.kind", "KEEP_LAST_HISTORY_QOS");
     if (history_memory_policy == "KEEP_LAST_HISTORY_QOS")
     {
-      Rparam->topic.historyQos.kind = eprosima::fastdds::KEEP_LAST_HISTORY_QOS;
+      Rparam.history().kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     }
     else if (history_memory_policy == "KEEP_ALL_HISTORY_QOS")
     {
-      Rparam->topic.historyQos.kind = eprosima::fastdds::KEEP_ALL_HISTORY_QOS;
+      Rparam.history().kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
     }
 
-    setDuration(fastdds_prop.getNode("subscriber.times.heartbeatResponseDelay"), Rparam->times.heartbeatResponseDelay);
-    setDuration(fastdds_prop.getNode("subscriber.times.initialAcknackDelay"), Rparam->times.initialAcknackDelay);
+    setDuration(fastdds_prop.getNode("subscriber.times.heartbeatResponseDelay"), Rparam.reliable_reader_qos().times.heartbeat_response_delay);
+    setDuration(fastdds_prop.getNode("subscriber.times.initialAcknackDelay"), Rparam.reliable_reader_qos().times.initial_acknack_delay);
   }
 
 
@@ -793,38 +779,39 @@ namespace RTC
    */
   void FastDDSInPort::outputLog(const eprosima::fastdds::dds::DataReaderQos& Rparam)
   {
-    RTC_DEBUG(("ReaderQos setting: subscriber.deadline.period: sec=%d nanosec=%u", Rparam->qos.m_deadline.period.seconds, Rparam->qos.m_deadline.period.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.destinationOrder.kind: %hhu", Rparam->qos.m_destinationOrder.kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.disablePositiveACKs.enabled: %s", (Rparam->qos.m_disablePositiveACKs.enabled ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.disablePositiveACKs.duration: sec=%d nanosec=%u", Rparam->qos.m_disablePositiveACKs.duration.seconds, Rparam->qos.m_disablePositiveACKs.duration.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durability.kind: %hhu", Rparam->qos.m_durability.kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.history_depth: %d", Rparam->qos.m_durabilityService.history_depth));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.history_kind: %hhu", Rparam->qos.m_durabilityService.history_kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_instances: %d", Rparam->qos.m_durabilityService.max_instances));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_samples: %d", Rparam->qos.m_durabilityService.max_samples));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_samples_per_instance: %d", Rparam->qos.m_durabilityService.max_samples_per_instance));
-    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.service_cleanup_delay: sec=%d nanosec=%u", Rparam->qos.m_durabilityService.service_cleanup_delay.seconds, Rparam->qos.m_durabilityService.service_cleanup_delay.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.latencyBudget.duration: sec=%d nanosec=%u", Rparam->qos.m_latencyBudget.duration.seconds, Rparam->qos.m_latencyBudget.duration.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.lifespan.duration: sec=%d nanosec=%u", Rparam->qos.m_lifespan.duration.seconds, Rparam->qos.m_lifespan.duration.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.announcement_period: sec=%d nanosec=%u", Rparam->qos.m_liveliness.announcement_period.seconds, Rparam->qos.m_liveliness.announcement_period.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.kind: %hhu", Rparam->qos.m_liveliness.kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.lease_duration: sec=%d nanosec=%u", Rparam->qos.m_liveliness.lease_duration.seconds, Rparam->qos.m_liveliness.lease_duration.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.ownership.kind: %hhu", Rparam->qos.m_ownership.kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.access_scope: %hhu", Rparam->qos.m_presentation.access_scope));
-    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.coherent_access: %s", (Rparam->qos.m_presentation.coherent_access ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.ordered_access: %s", (Rparam->qos.m_presentation.ordered_access ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.reliability.kind: %hhu", Rparam->qos.m_reliability.kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.reliability.max_blocking_time: sec=%d nanosec=%u", Rparam->qos.m_reliability.max_blocking_time.seconds, Rparam->qos.m_reliability.max_blocking_time.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.timeBasedFilter.minimum_separation: sec=%d nanosec=%u", Rparam->qos.m_timeBasedFilter.minimum_separation.seconds, Rparam->qos.m_timeBasedFilter.minimum_separation.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.force_type_validation: %s", (Rparam->qos.type_consistency.m_force_type_validation ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_member_names: %s", (Rparam->qos.type_consistency.m_ignore_member_names ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_sequence_bounds: %s", (Rparam->qos.type_consistency.m_ignore_sequence_bounds ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_string_bounds: %s", (Rparam->qos.type_consistency.m_ignore_string_bounds ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.kind: %hhu", Rparam->qos.type_consistency.m_kind));
-    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.prevent_type_widening: %s", (Rparam->qos.type_consistency.m_prevent_type_widening ? "true" : "false")));
-    RTC_DEBUG(("ReaderQos setting: subscriber.history_memory_policy: %d", Rparam->historyMemoryPolicy));
-    RTC_DEBUG(("ReaderQos setting: subscriber.times.heartbeatResponseDelay: sec=%d nanosec=%u", Rparam->times.heartbeatResponseDelay.seconds, Rparam->times.heartbeatResponseDelay.nanosec));
-    RTC_DEBUG(("ReaderQos setting: subscriber.times.initialAcknackDelay: sec=%d nanosec=%u", Rparam->times.initialAcknackDelay.seconds, Rparam->times.initialAcknackDelay.nanosec));
+    eprosima::fastdds::dds::SubscriberQos Sqos = eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT;
+    RTC_DEBUG(("ReaderQos setting: subscriber.deadline.period: sec=%d nanosec=%u", Rparam.deadline().period.seconds, Rparam.deadline().period.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.destinationOrder.kind: %hhu", Rparam.destination_order().kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.disablePositiveACKs.enabled: %s", (Rparam.reliable_reader_qos().disable_positive_acks.enabled ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.disablePositiveACKs.duration: sec=%d nanosec=%u", Rparam.reliable_reader_qos().disable_positive_acks.duration.seconds, Rparam.reliable_reader_qos().disable_positive_acks.duration.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durability.kind: %hhu", Rparam.durability().kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.history_depth: %d", Rparam.durability_service().history_depth));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.history_kind: %hhu", Rparam.durability_service().history_kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_instances: %d", Rparam.durability_service().max_instances));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_samples: %d", Rparam.durability_service().max_samples));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.max_samples_per_instance: %d", Rparam.durability_service().max_samples_per_instance));
+    RTC_DEBUG(("ReaderQos setting: subscriber.durabilityService.service_cleanup_delay: sec=%d nanosec=%u", Rparam.durability_service().service_cleanup_delay.seconds, Rparam.durability_service().service_cleanup_delay.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.latencyBudget.duration: sec=%d nanosec=%u", Rparam.latency_budget().duration.seconds, Rparam.latency_budget().duration.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.lifespan.duration: sec=%d nanosec=%u", Rparam.lifespan().duration.seconds, Rparam.lifespan().duration.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.announcement_period: sec=%d nanosec=%u", Rparam.liveliness().announcement_period.seconds, Rparam.liveliness().announcement_period.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.kind: %hhu", Rparam.liveliness().kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.liveliness.lease_duration: sec=%d nanosec=%u", Rparam.liveliness().lease_duration.seconds, Rparam.liveliness().lease_duration.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.ownership.kind: %hhu", Rparam.ownership().kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.access_scope: %hhu", Sqos.presentation().access_scope));
+    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.coherent_access: %s", (Sqos.presentation().coherent_access ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.presentation.ordered_access: %s", (Sqos.presentation().ordered_access ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.reliability.kind: %hhu", Rparam.reliability().kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.reliability.max_blocking_time: sec=%d nanosec=%u", Rparam.reliability().max_blocking_time.seconds, Rparam.reliability().max_blocking_time.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.timeBasedFilter.minimum_separation: sec=%d nanosec=%u", Rparam.time_based_filter().minimum_separation.seconds, Rparam.time_based_filter().minimum_separation.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.force_type_validation: %s", (Rparam.type_consistency().m_force_type_validation ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_member_names: %s", (Rparam.type_consistency().m_ignore_member_names ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_sequence_bounds: %s", (Rparam.type_consistency().m_ignore_sequence_bounds ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.ignore_string_bounds: %s", (Rparam.type_consistency().m_ignore_string_bounds ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.kind: %hhu", Rparam.type_consistency().m_kind));
+    RTC_DEBUG(("ReaderQos setting: subscriber.type_consistency.prevent_type_widening: %s", (Rparam.type_consistency().m_prevent_type_widening ? "true" : "false")));
+    RTC_DEBUG(("ReaderQos setting: subscriber.history_memory_policy: %d", Rparam.endpoint().history_memory_policy));
+    RTC_DEBUG(("ReaderQos setting: subscriber.times.heartbeatResponseDelay: sec=%d nanosec=%u", Rparam.reliable_reader_qos().times.heartbeat_response_delay.seconds, Rparam.reliable_reader_qos().times.heartbeat_response_delay.nanosec));
+    RTC_DEBUG(("ReaderQos setting: subscriber.times.initialAcknackDelay: sec=%d nanosec=%u", Rparam.reliable_reader_qos().times.initial_acknack_delay.seconds, Rparam.reliable_reader_qos().times.initial_acknack_delay.nanosec));
   }
 
 } // namespace RTC

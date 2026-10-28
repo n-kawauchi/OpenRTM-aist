@@ -100,8 +100,8 @@ namespace RTC
     }
 
     std::string marshaling_type = prop.getProperty("marshaling_type", "corba");
-    coil::Properties& fastrtps_prop = prop.getNode("fast-rtps");
-    m_topic = fastrtps_prop.getProperty("topic", "chatter");
+    coil::Properties& fastdds_prop = prop.getNode("fast-dds");
+    m_topic = fastdds_prop.getProperty("topic", "chatter");
 
 
     const std::string str_corba = "corba";
@@ -166,14 +166,14 @@ namespace RTC
 
     eprosima::fastdds::dds::DataWriterQos *Wparam = new eprosima::fastdds::dds::DataWriterQos();
 
-    std::string publisher_name = fastrtps_prop.getProperty("publisher.name");
+    std::string publisher_name = fastdds_prop.getProperty("publisher.name");
     if(publisher_name.empty() || !topicmgr.xmlConfigured())
     {
-      Wparam->topic.topicKind = eprosima::fastrtps::rtps::NO_KEY;
+      Wparam->topic.topicKind = eprosima::fastdds::rtps::NO_KEY;
       Wparam->topic.topicDataType = m_dataType;
       Wparam->topic.topicName = m_topic;
       
-      setPubParam(fastrtps_prop, Wparam);
+      setPubParam(fastdds_prop, Wparam);
 
     }
     else
@@ -306,12 +306,12 @@ namespace RTC
 
     if (sec_str == "2147483647" && nanosec_str == "4294967295")
     {
-      time = eprosima::fastrtps::c_TimeInfinite;
+      time = eprosima::fastdds::dds::c_TimeInfinite;
       return;
     }
     else if (sec_str == "0" && nanosec_str == "0")
     {
-      time = eprosima::fastrtps::c_TimeZero;
+      time = eprosima::fastdds::dds::c_TimeZero;
       return;
     }
 
@@ -336,192 +336,186 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSOutPort::setPubParam(coil::Properties& fastrtps_prop, eprosima::fastrtps::PublisherAttributes* Wparam)
+  void FastDDSOutPort::setPubParam(coil::Properties& fastdds_prop, eprosima::fastdds::dds::DataWriterQos* Wparam)
   {
-    setDuration(fastrtps_prop.getNode("publisher.qos.deadline.period"), Wparam->qos.m_deadline.period);
+    setDuration(fastdds_prop.getNode("publisher.qos.deadline.period"), Wparam->qos.m_deadline.period);
 
-    std::string destinationOrder_kind = fastrtps_prop.getProperty("publisher.qos.destinationOrder.kind", "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS");
+    std::string destinationOrder_kind = fastdds_prop.getProperty("publisher.qos.destinationOrder.kind", "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS");
 
     if (destinationOrder_kind == "BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Wparam->qos.m_destinationOrder.kind = eprosima::fastrtps::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
+      Wparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_RECEPTION_TIMESTAMP_DESTINATIONORDER_QOS;
     }
     else if (destinationOrder_kind == "BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS")
     {
-      Wparam->qos.m_destinationOrder.kind = eprosima::fastrtps::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
+      Wparam->qos.m_destinationOrder.kind = eprosima::fastdds::dds::BY_SOURCE_TIMESTAMP_DESTINATIONORDER_QOS;
     }
 
     Wparam->qos.m_disablePositiveACKs.enabled = coil::toBool(fastrtps_prop["publisher.qos.disablePositiveACKs.enabled"], "YES", "NO", Wparam->qos.m_disablePositiveACKs.enabled);
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.disablePositiveACKs.duration"), Wparam->qos.m_disablePositiveACKs.duration);
+    setDuration(fastdds_prop.getNode("publisher.qos.disablePositiveACKs.duration"), Wparam->qos.m_disablePositiveACKs.duration);
 
 
-    std::string durability_kind = fastrtps_prop.getProperty("publisher.qos.durability.kind", "VOLATILE_DURABILITY_QOS");
+    std::string durability_kind = fastdds_prop.getProperty("publisher.qos.durability.kind", "VOLATILE_DURABILITY_QOS");
 
     if (durability_kind == "VOLATILE_DURABILITY_QOS")
     {
-      Wparam->qos.m_durability.kind = eprosima::fastrtps::VOLATILE_DURABILITY_QOS;
+      Wparam->qos.m_durability.kind = eprosima::fastdds::dds::VOLATILE_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_LOCAL_DURABILITY_QOS")
     {
-      Wparam->qos.m_durability.kind = eprosima::fastrtps::TRANSIENT_LOCAL_DURABILITY_QOS;
+      Wparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_LOCAL_DURABILITY_QOS;
     }
     else if (durability_kind == "TRANSIENT_DURABILITY_QOS")
     {
-      Wparam->qos.m_durability.kind = eprosima::fastrtps::TRANSIENT_DURABILITY_QOS;
+      Wparam->qos.m_durability.kind = eprosima::fastdds::dds::TRANSIENT_DURABILITY_QOS;
     }
     else if (durability_kind == "PERSISTENT_DURABILITY_QOS")
     {
-      Wparam->qos.m_durability.kind = eprosima::fastrtps::PERSISTENT_DURABILITY_QOS;
+      Wparam->qos.m_durability.kind = eprosima::fastdds::dds::PERSISTENT_DURABILITY_QOS;
     }
 
-    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.history_depth, fastrtps_prop["publisher.qos.durabilityService.history_depth"].c_str());
+    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.history_depth, fastdds_prop["publisher.qos.durabilityService.history_depth"].c_str());
 
 
-    std::string durabilityService_history_kind = fastrtps_prop.getProperty("publisher.qos.durabilityService.history_kind", "KEEP_LAST_HISTORY_QOS");
+    std::string durabilityService_history_kind = fastdds_prop.getProperty("publisher.qos.durabilityService.history_kind", "KEEP_LAST_HISTORY_QOS");
 
     if (durabilityService_history_kind == "KEEP_LAST_HISTORY_QOS")
     {
-      Wparam->qos.m_durabilityService.history_kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+      Wparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     }
     else if (durabilityService_history_kind == "KEEP_ALL_HISTORY_QOS")
     {
-      Wparam->qos.m_durabilityService.history_kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+      Wparam->qos.m_durabilityService.history_kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
     }
 
-    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_instances, fastrtps_prop["publisher.qos.durabilityService.max_instances"].c_str());
-    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_samples, fastrtps_prop["publisher.qos.durabilityService.max_samples"].c_str());
-    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_samples_per_instance, fastrtps_prop["publisher.qos.durabilityService.max_samples_per_instance"].c_str());
+    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_instances, fastdds_prop["publisher.qos.durabilityService.max_instances"].c_str());
+    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_samples, fastdds_prop["publisher.qos.durabilityService.max_samples"].c_str());
+    coil::stringTo<int32_t>(Wparam->qos.m_durabilityService.max_samples_per_instance, fastdds_prop["publisher.qos.durabilityService.max_samples_per_instance"].c_str());
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.durabilityService.service_cleanup_delay"), Wparam->qos.m_durabilityService.service_cleanup_delay);
+    setDuration(fastdds_prop.getNode("publisher.qos.durabilityService.service_cleanup_delay"), Wparam->qos.m_durabilityService.service_cleanup_delay);
 
 
     //Wparam->qos.m_groupData;
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.latencyBudget.duration"), Wparam->qos.m_latencyBudget.duration);
+    setDuration(fastdds_prop.getNode("publisher.qos.latencyBudget.duration"), Wparam->qos.m_latencyBudget.duration);
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.lifespan.duration"), Wparam->qos.m_lifespan.duration);
+    setDuration(fastdds_prop.getNode("publisher.qos.lifespan.duration"), Wparam->qos.m_lifespan.duration);
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.liveliness.announcement_period"), Wparam->qos.m_liveliness.announcement_period);
+    setDuration(fastdds_prop.getNode("publisher.qos.liveliness.announcement_period"), Wparam->qos.m_liveliness.announcement_period);
 
-    std::string liveliness_kind = fastrtps_prop.getProperty("publisher.qos.liveliness.kind", "AUTOMATIC_LIVELINESS_QOS");
+    std::string liveliness_kind = fastdds_prop.getProperty("publisher.qos.liveliness.kind", "AUTOMATIC_LIVELINESS_QOS");
 
     if (liveliness_kind == "AUTOMATIC_LIVELINESS_QOS")
     {
-      Wparam->qos.m_liveliness.kind = eprosima::fastrtps::AUTOMATIC_LIVELINESS_QOS;
+      Wparam->qos.m_liveliness.kind = eprosima::fastdds::dds::AUTOMATIC_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_PARTICIPANT_LIVELINESS_QOS")
     {
-      Wparam->qos.m_liveliness.kind = eprosima::fastrtps::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
+      Wparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_PARTICIPANT_LIVELINESS_QOS;
     }
     else if (liveliness_kind == "MANUAL_BY_TOPIC_LIVELINESS_QOS")
     {
-      Wparam->qos.m_liveliness.kind = eprosima::fastrtps::MANUAL_BY_TOPIC_LIVELINESS_QOS;
+      Wparam->qos.m_liveliness.kind = eprosima::fastdds::dds::MANUAL_BY_TOPIC_LIVELINESS_QOS;
     }
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.liveliness.lease_duration"), Wparam->qos.m_liveliness.lease_duration);
+    setDuration(fastdds_prop.getNode("publisher.qos.liveliness.lease_duration"), Wparam->qos.m_liveliness.lease_duration);
 
 
-    std::string ownership_kind = fastrtps_prop.getProperty("publisher.qos.ownership.kind", "SHARED_OWNERSHIP_QOS");
+    std::string ownership_kind = fastdds_prop.getProperty("publisher.qos.ownership.kind", "SHARED_OWNERSHIP_QOS");
 
     if (ownership_kind == "SHARED_OWNERSHIP_QOS")
     {
-      Wparam->qos.m_ownership.kind = eprosima::fastrtps::SHARED_OWNERSHIP_QOS;
+      Wparam->qos.m_ownership.kind = eprosima::fastdds::dds::SHARED_OWNERSHIP_QOS;
     }
     else if (ownership_kind == "EXCLUSIVE_OWNERSHIP_QOS")
     {
-      Wparam->qos.m_ownership.kind = eprosima::fastrtps::EXCLUSIVE_OWNERSHIP_QOS;
+      Wparam->qos.m_ownership.kind = eprosima::fastdds::dds::EXCLUSIVE_OWNERSHIP_QOS;
     }
 
 
-    coil::stringTo<uint32_t>(Wparam->qos.m_ownershipStrength.value, fastrtps_prop["publisher.qos.ownershipStrength.value"].c_str());
+    coil::stringTo<uint32_t>(Wparam->qos.m_ownershipStrength.value, fastdds_prop["publisher.qos.ownershipStrength.value"].c_str());
 
     //Wparam->qos.m_partition
 
 
-    std::string presentation_access_scope = fastrtps_prop.getProperty("publisher.qos.presentation.access_scope", "INSTANCE_PRESENTATION_QOS");
+    std::string presentation_access_scope = fastdds_prop.getProperty("publisher.qos.presentation.access_scope", "INSTANCE_PRESENTATION_QOS");
 
     if (presentation_access_scope == "INSTANCE_PRESENTATION_QOS")
     {
-      Wparam->qos.m_presentation.access_scope = eprosima::fastrtps::INSTANCE_PRESENTATION_QOS;
+      Wparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::INSTANCE_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "TOPIC_PRESENTATION_QOS")
     {
-      Wparam->qos.m_presentation.access_scope = eprosima::fastrtps::TOPIC_PRESENTATION_QOS;
+      Wparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::TOPIC_PRESENTATION_QOS;
     }
     else if (presentation_access_scope == "GROUP_PRESENTATION_QOS")
     {
-      Wparam->qos.m_presentation.access_scope = eprosima::fastrtps::GROUP_PRESENTATION_QOS;
+      Wparam->qos.m_presentation.access_scope = eprosima::fastdds::dds::GROUP_PRESENTATION_QOS;
     }
 
-    Wparam->qos.m_presentation.coherent_access = coil::toBool(fastrtps_prop["publisher.qos.presentation.coherent_access"], "YES", "NO", Wparam->qos.m_presentation.coherent_access);
-    Wparam->qos.m_presentation.ordered_access = coil::toBool(fastrtps_prop["publisher.qos.presentation.ordered_access"], "YES", "NO", Wparam->qos.m_presentation.ordered_access);
+    Wparam->qos.m_presentation.coherent_access = coil::toBool(fastdds_prop["publisher.qos.presentation.coherent_access"], "YES", "NO", Wparam->qos.m_presentation.coherent_access);
+    Wparam->qos.m_presentation.ordered_access = coil::toBool(fastdds_prop["publisher.qos.presentation.ordered_access"], "YES", "NO", Wparam->qos.m_presentation.ordered_access);
 
 
-    std::string publishMode_kind = fastrtps_prop.getProperty("publisher.qos.publishMode.kind", "SYNCHRONOUS_PUBLISH_MODE");
+    std::string publishMode_kind = fastdds_prop.getProperty("publisher.qos.publishMode.kind", "SYNCHRONOUS_PUBLISH_MODE");
 
     if (publishMode_kind == "SYNCHRONOUS_PUBLISH_MODE")
     {
-      Wparam->qos.m_publishMode.kind = eprosima::fastrtps::SYNCHRONOUS_PUBLISH_MODE;
+      Wparam->qos.m_publishMode.kind = eprosima::fastdds::dds::SYNCHRONOUS_PUBLISH_MODE;
     }
     else if (publishMode_kind == "ASYNCHRONOUS_PUBLISH_MODE")
     {
-      Wparam->qos.m_publishMode.kind = eprosima::fastrtps::ASYNCHRONOUS_PUBLISH_MODE;
+      Wparam->qos.m_publishMode.kind = eprosima::fastdds::dds::ASYNCHRONOUS_PUBLISH_MODE;
     }
 
 
-    std::string reliability_kind = fastrtps_prop.getProperty("publisher.qos.reliability.kind", "BEST_EFFORT_RELIABILITY_QOS");
+    std::string reliability_kind = fastdds_prop.getProperty("publisher.qos.reliability.kind", "BEST_EFFORT_RELIABILITY_QOS");
 
     if (reliability_kind == "BEST_EFFORT_RELIABILITY_QOS")
     {
-      Wparam->qos.m_reliability.kind = eprosima::fastrtps::BEST_EFFORT_RELIABILITY_QOS;
+      Wparam->qos.m_reliability.kind = eprosima::fastdds::dds::BEST_EFFORT_RELIABILITY_QOS;
     }
     else if (reliability_kind == "RELIABLE_RELIABILITY_QOS")
     {
-      Wparam->qos.m_reliability.kind = eprosima::fastrtps::RELIABLE_RELIABILITY_QOS;
+      Wparam->qos.m_reliability.kind = eprosima::fastdds::dds::RELIABLE_RELIABILITY_QOS;
     }
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.reliability.max_blocking_time"), Wparam->qos.m_reliability.max_blocking_time);
+    setDuration(fastdds_prop.getNode("publisher.qos.reliability.max_blocking_time"), Wparam->qos.m_reliability.max_blocking_time);
 
-    setDuration(fastrtps_prop.getNode("publisher.qos.timeBasedFilter.minimum_separation"), Wparam->qos.m_timeBasedFilter.minimum_separation);
+    setDuration(fastdds_prop.getNode("publisher.qos.timeBasedFilter.minimum_separation"), Wparam->qos.m_timeBasedFilter.minimum_separation);
 
 
-    std::string history_memory_policy = fastrtps_prop.getProperty("publisher.history_memory_policy", "PREALLOCATED_WITH_REALLOC_MEMORY_MODE");
+    std::string history_memory_policy = fastdds_prop.getProperty("publisher.history_memory_policy", "PREALLOCATED_WITH_REALLOC_MEMORY_MODE");
     if (history_memory_policy == "PREALLOCATED_MEMORY_MODE")
     {
-      Wparam->historyMemoryPolicy = eprosima::fastrtps::rtps::PREALLOCATED_MEMORY_MODE;
+      Wparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_MEMORY_MODE;
     }
     else if (history_memory_policy == "PREALLOCATED_WITH_REALLOC_MEMORY_MODE")
     {
-      Wparam->historyMemoryPolicy = eprosima::fastrtps::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
+      Wparam->historyMemoryPolicy = eprosima::fastdds::rtps::PREALLOCATED_WITH_REALLOC_MEMORY_MODE;
     }
     else if (history_memory_policy == "DYNAMIC_RESERVE_MEMORY_MODE")
     {
-      Wparam->historyMemoryPolicy = eprosima::fastrtps::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
+      Wparam->historyMemoryPolicy = eprosima::fastdds::rtps::DYNAMIC_RESERVE_MEMORY_MODE;
     }
-#if (FASTRTPS_VERSION_MAJOR > 1)
-    else if (history_memory_policy == "DYNAMIC_REUSABLE_MEMORY_MODE")
-    {
-      Wparam->historyMemoryPolicy = eprosima::fastrtps::rtps::DYNAMIC_REUSABLE_MEMORY_MODE;
-    }
-#endif
 
-    coil::stringTo<int32_t>(Wparam->topic.historyQos.depth, fastrtps_prop["publisher.topic.historyQos.depth"].c_str());
+    coil::stringTo<int32_t>(Wparam->topic.historyQos.depth, fastdds_prop["publisher.topic.historyQos.depth"].c_str());
 
-    std::string topic_historyQos_kind = fastrtps_prop.getProperty("publisher.topic.historyQos.kind", "KEEP_LAST_HISTORY_QOS");
+    std::string topic_historyQos_kind = fastdds_prop.getProperty("publisher.topic.historyQos.kind", "KEEP_LAST_HISTORY_QOS");
     if (history_memory_policy == "KEEP_LAST_HISTORY_QOS")
     {
-      Wparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_LAST_HISTORY_QOS;
+      Wparam->topic.historyQos.kind = eprosima::fastdds::dds::KEEP_LAST_HISTORY_QOS;
     }
     else if (history_memory_policy == "KEEP_ALL_HISTORY_QOS")
     {
-      Wparam->topic.historyQos.kind = eprosima::fastrtps::KEEP_ALL_HISTORY_QOS;
+      Wparam->topic.historyQos.kind = eprosima::fastdds::dds::KEEP_ALL_HISTORY_QOS;
     }
 
-    setDuration(fastrtps_prop.getNode("publisher.times.heartbeatPeriod"), Wparam->times.heartbeatPeriod);
-    setDuration(fastrtps_prop.getNode("publisher.times.initialHeartbeatDelay"), Wparam->times.initialHeartbeatDelay);
-    setDuration(fastrtps_prop.getNode("publisher.times.nackResponseDelay"), Wparam->times.nackResponseDelay);
-    setDuration(fastrtps_prop.getNode("publisher.times.nackSupressionDuration"), Wparam->times.nackSupressionDuration);
+    setDuration(fastdds_prop.getNode("publisher.times.heartbeatPeriod"), Wparam->times.heartbeatPeriod);
+    setDuration(fastdds_prop.getNode("publisher.times.initialHeartbeatDelay"), Wparam->times.initialHeartbeatDelay);
+    setDuration(fastdds_prop.getNode("publisher.times.nackResponseDelay"), Wparam->times.nackResponseDelay);
+    setDuration(fastdds_prop.getNode("publisher.times.nackSupressionDuration"), Wparam->times.nackSupressionDuration);
 
 
   }
@@ -540,9 +534,10 @@ namespace RTC
    *
    * @endif
    */
-  void FastDDSOutPort::outputLog(const eprosima::fastrtps::PublisherAttributes* Wparam)
+  void FastDDSOutPort::outputLog(const eprosima::fastdds::dds::DataWriterQos& Wparam)
   {
-    RTC_DEBUG(("WriterQos setting: publisher.deadline.period: sec=%d nanosec=%u", Wparam->qos.m_deadline.period.seconds, Wparam->qos.m_deadline.period.nanosec));
+    //RTC_DEBUG(("WriterQos setting: publisher.deadline.period: sec=%d nanosec=%u", Wparam->qos.m_deadline.period.seconds, Wparam->qos.m_deadline.period.nanosec));
+    RTC_DEBUG(("WriterQos setting: publisher.deadline.period: sec=%d nanosec=%u", Wparam.deadline().period.seconds, Wparam.deadline().period.nanosec));
     RTC_DEBUG(("WriterQos setting: publisher.destinationOrder.kind: %hhu", Wparam->qos.m_destinationOrder.kind));
     RTC_DEBUG(("WriterQos setting: publisher.disablePositiveACKs.enabled: %s", (Wparam->qos.m_disablePositiveACKs.enabled ? "true" : "false")));
     RTC_DEBUG(("WriterQos setting: publisher.disablePositiveACKs.duration: sec=%d nanosec=%u", Wparam->qos.m_disablePositiveACKs.duration.seconds, Wparam->qos.m_disablePositiveACKs.duration.nanosec));

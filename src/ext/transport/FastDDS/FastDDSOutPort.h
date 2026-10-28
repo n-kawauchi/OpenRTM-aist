@@ -273,7 +273,7 @@ namespace RTC
      *
      * @endif
      */
-    static void setPubParam(coil::Properties& fastrtps_prop, eprosima::fastdds::dds::DataWriterQos* Wparam);
+    static void setPubParam(coil::Properties& fastdds_prop, eprosima::fastdds::dds::DataWriterQos* Wparam);
 
     /*!
      * @if jp
@@ -289,7 +289,7 @@ namespace RTC
      *
      * @endif
      */
-    void outputLog(const eprosima::fastdds::dds::DataWriterQos* Wparam);
+    void outputLog(const eprosima::fastdds::dds::DataWriterQos& Wparam);
 
     mutable Logger rtclog;
     coil::Properties m_properties;
