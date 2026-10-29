@@ -16,8 +16,8 @@
  *
  */
 
-#ifndef RTC_FASTRTPSOUTPORT_H
-#define RTC_FASTRTPSOUTPORT_H
+#ifndef RTC_FASTDDSOUTPORT_H
+#define RTC_FASTDDSOUTPORT_H
 
 
 
@@ -31,6 +31,7 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/publisher/DataWriter.hpp>
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
+#include <fastdds/dds/core/status/PublicationMatchedStatus.hpp>
 #include <fastdds/dds/core/Time_t.hpp>
 #include <fastdds/dds/topic/Topic.hpp>
 #include <fastdds/dds/publisher/qos/DataWriterQos.hpp>
@@ -297,8 +298,9 @@ namespace RTC
     std::string m_topic;
     std::string m_dataType;
     std::mutex m_mutex;
-
-    eprosima::fastdds::dds::Publisher *m_publisher{nullptr};
+    eprosima::fastdds::dds::Publisher* m_publisher = nullptr;
+    eprosima::fastdds::dds::DataWriter* m_writer = nullptr;
+    eprosima::fastdds::dds::Topic* m_dds_topic = nullptr;
 
     /*!
      * @if jp
@@ -377,5 +379,5 @@ namespace RTC
 
 
 
-#endif // RTC_FASTRTPSOUTPORT_H
+#endif // RTC_FASTDDSOUTPORT_H
 

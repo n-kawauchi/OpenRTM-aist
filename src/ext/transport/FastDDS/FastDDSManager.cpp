@@ -121,7 +121,7 @@ namespace RTC
     {
       // Fast DDS では factory 経由で XML プロファイルをロード
       auto ret = factory->load_XML_profiles_file(m_xml_profile_file);
-      if (ret != ReturnCode_t::RETCODE_OK)
+      if (ret != eprosima::fastdds::dds::RETCODE_OK)
       {
         RTC_ERROR(("Failed to load XML profile"));
 	return;
@@ -173,7 +173,7 @@ namespace RTC
 
     auto* factory = DomainParticipantFactory::get_instance();
     auto ret = factory->delete_participant(m_participant);
-    if (ret == ReturnCode_t::RETCODE_OK)
+    if (ret == eprosima::fastdds::dds::RETCODE_OK)
     {
       m_participant = nullptr;
     }
@@ -196,7 +196,7 @@ namespace RTC
    *
    * @endif
    */
-  eprosima::fastdds::dds:DomainParticipant* FastDDSManager::getParticipant()
+  eprosima::fastdds::dds::DomainParticipant* FastDDSManager::getParticipant()
   {
       std::lock_guard<std::mutex> guard(mutex);
       return m_participant;
@@ -244,7 +244,7 @@ namespace RTC
 
       TypeSupport type_support(type);      
       
-      return type_support.register_type(m_participant) == ReturnCode_t::RETCODE_OK;
+      return type_support.register_type(m_participant) == eprosima::fastdds::dds::RETCODE_OK;
   }
 
   /*!
@@ -316,7 +316,7 @@ namespace RTC
       }
 
       return m_participant->unregister_type(name)
-        == ReturnCode_t::RETCODE_OK;
+        == eprosima::fastdds::dds::RETCODE_OK;
   }
 
   /*!
