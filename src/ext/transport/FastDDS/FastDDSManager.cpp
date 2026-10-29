@@ -113,8 +113,8 @@ namespace RTC
     coil::stringTo<uint32_t>(domain_id, prop["domain.id"].c_str());
     RTC_INFO(("Domain ID: %d", domain_id));
 
-    const std::string paticipant_name = prop.getProperty("participant.name", "participant_openrtm");
-    RTC_INFO(("Participant name: %s", paticipant_name.c_str()));
+    const std::string participant_name = prop.getProperty("participant.name", "participant_openrtm");
+    RTC_INFO(("Participant name: %s", participant_name.c_str()));
 
     m_xml_profile_file = prop.getProperty("xmlprofile.filename");
     if (!m_xml_profile_file.empty())

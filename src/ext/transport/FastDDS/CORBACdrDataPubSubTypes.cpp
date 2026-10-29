@@ -46,7 +46,7 @@ namespace RTC
     }
 
     void CORBACdrDataPubSubType::init(std::string name, bool header_enable) {
-        setName(name.c_str());
+        set_name(name.c_str());
 	max_serialized_type_size = static_cast<uint32_t>(CORBACdrData::getMaxCdrSerializedSize()) + 4;
         is_compute_key_provided = CORBACdrData::isKeyDefined();
         m_keyBuffer = new unsigned char[std::max(CORBACdrData::getKeyMaxCdrSerializedSize(), static_cast<size_t>(16))]();
@@ -65,7 +65,7 @@ namespace RTC
         RTC::ByteData* p_type = (RTC::ByteData*) data;
         if (!m_header_enable)
         {
-            eprosima::fastcdr::FastBuffer fastbuffer((char*)payload->data, payload->max_size); // Object that manages the raw buffer.
+            eprosima::fastcdr::FastBuffer fastbuffer((char*)payload.data, payload.max_size); // Object that manages the raw buffer.
             eprosima::fastcdr::Cdr::Endianness endian;
             if (m_endian)
             {
@@ -77,7 +77,7 @@ namespace RTC
             }
             eprosima::fastcdr::Cdr ser(fastbuffer, endian,
                 eprosima::fastcdr::DDS_CDR); // Object that serializes the data.
-	    payload->encapsulation = ser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+	    payload.encapsulation = ser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
             // Serialize encapsulation
             try
             {
@@ -96,34 +96,34 @@ namespace RTC
             uint32_t data_size = p_type->getDataLength() + (uint32_t)ser.get_serialized_data_length();
             try
             {
-                payload->reserve(data_size);
+                payload.reserve(data_size);
             }
             catch (std::bad_alloc& e)
             {
                 std::cout << "bad_alloc:" << e.what() << std::endl;
                 return false;
             }
-            payload->length = data_size;
-            if (payload->max_size >= data_size)
+            payload.length = data_size;
+            if (payload.max_size >= data_size)
             {
-                memcpy(payload->data + ser.get_serialized_data_length(), p_type->getBuffer(), p_type->getDataLength());
+                memcpy(payload.data + ser.get_serialized_data_length(), p_type->getBuffer(), p_type->getDataLength());
             }
         }
         else
         {
             try
             {
-                payload->reserve(p_type->getDataLength());
+                payload.reserve(p_type->getDataLength());
             }
             catch (std::bad_alloc& e)
             {
                 std::cout << "bad_alloc:" << e.what() << std::endl;
                 return false;
             }
-            payload->length = p_type->getDataLength();
-            if (payload->max_size >= p_type->getDataLength())
+            payload.length = p_type->getDataLength();
+            if (payload.max_size >= p_type->getDataLength())
             {
-                memcpy(payload->data, p_type->getBuffer(), p_type->getDataLength());
+                memcpy(payload.data, p_type->getBuffer(), p_type->getDataLength());
             }
         }
         return true;
@@ -133,7 +133,7 @@ namespace RTC
     {
 
         RTC::ByteData* p_type = (RTC::ByteData*) data; //Convert DATA to pointer of your type
-        eprosima::fastcdr::FastBuffer fastbuffer((char*)payload->data, payload->length); // Object that manages the raw buffer.
+        eprosima::fastcdr::FastBuffer fastbuffer((char*)payload.data, payload.length); // Object that manages the raw buffer.
         eprosima::fastcdr::Cdr::Endianness endian;
         if (m_endian)
         {
@@ -160,18 +160,18 @@ namespace RTC
             std::cout << "BadParamException:" << e.what() << std::endl;
             return false;
         }
-        payload->encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
+        payload.encapsulation = deser.endianness() == eprosima::fastcdr::Cdr::BIG_ENDIANNESS ? CDR_BE : CDR_LE;
 
         if (!m_header_enable)
         {
-            if (payload->length >= (uint32_t)deser.get_serialized_data_length())
+            if (payload.length >= (uint32_t)deser.get_serialized_data_length())
             {
-                p_type->writeData(payload->data + deser.get_serialized_data_length(), payload->length - (uint32_t)deser.get_serialized_data_length());
+                p_type->writeData(payload.data + deser.get_serialized_data_length(), payload.length - (uint32_t)deser.get_serialized_data_length());
             }
         }
         else
         {
-            p_type->writeData(payload->data, payload->length);
+            p_type->writeData(payload.data, payload.length);
         }
 
         return true;
